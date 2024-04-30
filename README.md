@@ -9,7 +9,7 @@ This repository is primarily a way of sharing code with the tutor.
 
 ## Installation
 
-This project uses [Composer](https://getcomposer.org) with PHP `>= 7.2.5`.
+This project uses [Composer](https://getcomposer.org) with PHP `>= 7.4`.
 
 Configure your database and email server in a `.env.local` file at the root of the project.  
 Copy a `DATABASE_URL` line from the `.env` file and modify it to fit your configuration.
