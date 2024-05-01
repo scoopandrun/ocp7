@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\PaginationDTO;
 use App\Entity\Device;
 use App\Service\DeviceService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,11 +19,13 @@ class DeviceController extends AbstractController
         DeviceService $deviceService,
         Request $request
     ): JsonResponse {
-        $page = $request->query->getInt('page', 1);
-        $limit = 10;
+        $paginationDTO = new PaginationDTO(
+            $request->query->getInt('page', 1),
+            $request->query->getInt('limit', 10)
+        );
 
         return $this->json(
-            $deviceService->findPage($page, $limit),
+            $deviceService->findPage($paginationDTO),
             200,
             [],
             ['groups' => 'device.index']

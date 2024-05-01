@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\DTO\PaginationDTO;
 use App\Repository\DeviceRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -17,12 +18,14 @@ class DeviceService
     /**
      * Finds a page of devices.
      *
-     * @param int $page The page number.
-     * @param int $limit The number of devices per page.
+     * @param PaginationDTO $paginationDTO The pagination data transfer object.
      * @return Paginator The devices.
      */
-    public function findPage(int $page, int $limit): Paginator
+    public function findPage(PaginationDTO $paginationDTO): Paginator
     {
-        return $this->deviceRepository->findPage($page, $limit);
+        return $this->deviceRepository->findPage(
+            $paginationDTO->page,
+            $paginationDTO->limit
+        );
     }
 }
