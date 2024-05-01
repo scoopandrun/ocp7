@@ -17,6 +17,7 @@ class Brand implements \Stringable
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"device.index", "device.show"})
      */
     private ?int $id = null;
 
