@@ -28,7 +28,10 @@ class DeviceController extends AbstractController
             $deviceService->findPage($paginationDTO),
             200,
             [],
-            ['groups' => 'device.index']
+            [
+                'groups' => 'device.index',
+                'pagination' => $paginationDTO,
+            ]
         );
     }
 

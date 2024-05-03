@@ -4,7 +4,9 @@ namespace App\Entity;
 
 use App\Repository\DeviceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 /**
  * @ORM\Entity(repositoryClass=DeviceRepository::class)
@@ -15,7 +17,7 @@ class Device
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"device.index"})
+     * @Groups({"device.index", "brand.show"})
      */
     private ?int $id = null;
 
@@ -28,13 +30,13 @@ class Device
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"device.index", "device.show"})
+     * @Groups({"device.index", "device.show", "brand.show"})
      */
     private ?string $model = null;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"device.index", "device.show"})
+     * @Groups({"device.index", "device.show", "brand.show"})
      */
     private ?string $type = null;
 
