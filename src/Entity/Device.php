@@ -43,6 +43,7 @@ class Device
     /**
      * @ORM\Column(type="date_immutable")
      * @Groups({"device.index", "device.show"})
+     * @Context({DateTimeNormalizer::FORMAT_KEY = "Y-m-d"})
      */
     private ?\DateTimeImmutable $dateFirstCommercialized = null;
 
