@@ -45,7 +45,13 @@ class Device
     private bool $isSold = false;
 
     /**
-     * @ORM\Column(type="datetime_immutable", options={"default": "CURRENT_DATE"})
+     * @ORM\Column(type="string")
+     * @Groups({"device.show"})
+     */
+    private ?string $description = null;
+
+    /**
+     * @ORM\Column(type="date_immutable", options={"default": "CURRENT_DATE"})
      */
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -115,6 +121,18 @@ class Device
     public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

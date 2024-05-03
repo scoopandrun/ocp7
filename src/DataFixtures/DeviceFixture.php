@@ -6,10 +6,9 @@ namespace App\DataFixtures;
 
 use App\Entity\Brand;
 use App\Entity\Device;
-use DateTime;
-use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker;
 
 class DeviceFixture extends Fixture
 {
@@ -60,181 +59,182 @@ class DeviceFixture extends Fixture
     {
         $devicesData = [
             [
+                'brand' => 'Samsung',
                 'model' => 'Galaxy S21',
                 'dateFirstCommercialized' => '2021-01-29',
                 'isSold' => true,
-                'brand' => 'Samsung',
             ],
             [
+                'brand' => 'Apple',
                 'model' => 'iPhone 12',
                 'dateFirstCommercialized' => '2020-10-23',
                 'isSold' => true,
-                'brand' => 'Apple',
             ],
             [
+                'brand' => 'Google',
                 'model' => 'Pixel 5',
                 'dateFirstCommercialized' => '2020-10-15',
                 'isSold' => true,
-                'brand' => 'Google',
             ],
             [
+                'brand' => 'Huawei',
                 'model' => 'Mate 40 Pro',
                 'dateFirstCommercialized' => '2020-10-22',
                 'isSold' => true,
-                'brand' => 'Huawei',
             ],
             [
+                'brand' => 'Xiaomi',
                 'model' => 'Mi 11',
                 'dateFirstCommercialized' => '2020-12-28',
                 'isSold' => true,
-                'brand' => 'Xiaomi',
             ],
             [
+                'brand' => 'Sony',
                 'model' => 'Xperia 1 III',
                 'dateFirstCommercialized' => '2021-06-28',
                 'isSold' => true,
-                'brand' => 'Sony',
             ],
             [
+                'brand' => 'Motorola',
                 'model' => 'Moto G Power',
                 'dateFirstCommercialized' => '2020-04-16',
                 'isSold' => true,
-                'brand' => 'Motorola',
             ],
             [
+                'brand' => 'LG',
                 'model' => 'Wing',
                 'dateFirstCommercialized' => '2020-10-15',
                 'isSold' => true,
-                'brand' => 'LG',
             ],
             [
+                'brand' => 'Nokia',
                 'model' => '8.3',
                 'dateFirstCommercialized' => '2020-09-22',
                 'isSold' => true,
-                'brand' => 'Nokia',
             ],
             [
+                'brand' => 'OnePlus',
                 'model' => '8T',
                 'dateFirstCommercialized' => '2020-10-23',
                 'isSold' => true,
-                'brand' => 'OnePlus',
             ],
             [
+                'brand' => 'BlackBerry',
                 'model' => 'Key2',
                 'dateFirstCommercialized' => '2018-06-28',
                 'isSold' => true,
-                'brand' => 'BlackBerry',
             ],
             [
+                'brand' => 'HTC',
                 'model' => 'U12+',
                 'dateFirstCommercialized' => '2018-06-28',
                 'isSold' => true,
-                'brand' => 'HTC',
             ],
             [
+                'brand' => 'Oppo',
                 'model' => 'Find X3 Pro',
                 'dateFirstCommercialized' => '2021-03-11',
                 'isSold' => true,
-                'brand' => 'Oppo',
             ],
             [
+                'brand' => 'Vivo',
                 'model' => 'X60 Pro+',
                 'dateFirstCommercialized' => '2021-01-21',
                 'isSold' => true,
-                'brand' => 'Vivo',
             ],
             [
+                'brand' => 'Samsung',
                 'model' => 'Galaxy S10',
                 'dateFirstCommercialized' => '2019-03-08',
                 'isSold' => false,
-                'brand' => 'Samsung',
             ],
             [
+                'brand' => 'Apple',
                 'model' => 'iPhone 6',
                 'dateFirstCommercialized' => '2014-09-19',
                 'isSold' => false,
-                'brand' => 'Apple',
             ],
             [
+                'brand' => 'Google',
                 'model' => 'Nexus 5',
                 'dateFirstCommercialized' => '2013-10-31',
                 'isSold' => false,
-                'brand' => 'Google',
             ],
             [
+                'brand' => 'Huawei',
                 'model' => 'P20 Pro',
                 'dateFirstCommercialized' => '2018-03-27',
                 'isSold' => false,
-                'brand' => 'Huawei',
             ],
             [
+                'brand' => 'Xiaomi',
                 'model' => 'Mi 9',
                 'dateFirstCommercialized' => '2019-02-20',
                 'isSold' => false,
-                'brand' => 'Xiaomi',
             ],
             [
+                'brand' => 'Sony',
                 'model' => 'Xperia XZ2',
                 'dateFirstCommercialized' => '2018-04-05',
                 'isSold' => false,
-                'brand' => 'Sony',
             ],
             [
+                'brand' => 'Motorola',
                 'model' => 'Moto G7',
                 'dateFirstCommercialized' => '2019-02-07',
                 'isSold' => false,
-                'brand' => 'Motorola',
             ],
             [
+                'brand' => 'LG',
                 'model' => 'G8 ThinQ',
                 'dateFirstCommercialized' => '2019-03-29',
                 'isSold' => false,
-                'brand' => 'LG',
             ],
             [
+                'brand' => 'Nokia',
                 'model' => '7 Plus',
                 'dateFirstCommercialized' => '2018-02-25',
                 'isSold' => false,
-                'brand' => 'Nokia',
             ],
             [
+                'brand' => 'OnePlus',
                 'model' => '6T',
                 'dateFirstCommercialized' => '2018-10-29',
                 'isSold' => false,
-                'brand' => 'OnePlus',
             ],
             [
+                'brand' => 'BlackBerry',
                 'model' => 'KeyOne',
                 'dateFirstCommercialized' => '2017-04-27',
                 'isSold' => false,
-                'brand' => 'BlackBerry',
             ],
             [
+                'brand' => 'HTC',
                 'model' => 'U11',
                 'dateFirstCommercialized' => '2017-06-09',
                 'isSold' => false,
-                'brand' => 'HTC',
             ],
             [
+                'brand' => 'Oppo',
                 'model' => 'Find X2 Pro',
                 'dateFirstCommercialized' => '2020-03-06',
                 'isSold' => false,
-                'brand' => 'Oppo',
             ],
             [
+                'brand' => 'Vivo',
                 'model' => 'X50 Pro+',
                 'dateFirstCommercialized' => '2020-06-12',
                 'isSold' => false,
-                'brand' => 'Vivo',
             ],
         ];
 
         foreach ($devicesData as $deviceData) {
-            $device = new Device();
-            $device->setModel($deviceData['model']);
-            $device->setDateFirstCommercialized(new DateTimeImmutable($deviceData['dateFirstCommercialized']));
-            $device->setIsSold($deviceData['isSold']);
-            $device->setBrand($this->getReference($deviceData['brand']));
+            $device = (new Device())
+                ->setModel($deviceData['model'])
+                ->setDateFirstCommercialized(new \DateTimeImmutable($deviceData['dateFirstCommercialized']))
+                ->setIsSold($deviceData['isSold'])
+                ->setBrand($this->getReference($deviceData['brand']))
+                ->setDescription(Faker\Factory::create()->text(200));
 
             yield $device;
         }
