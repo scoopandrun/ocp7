@@ -33,6 +33,12 @@ class Device
     private ?string $model = null;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"device.index", "device.show"})
+     */
+    private ?string $type = null;
+
+    /**
      * @ORM\Column(type="date_immutable")
      * @Groups({"device.index", "device.show"})
      */
@@ -85,6 +91,18 @@ class Device
     public function setModel(string $model): self
     {
         $this->model = $model;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }
