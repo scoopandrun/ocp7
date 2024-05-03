@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Brand;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,5 +20,18 @@ class BrandRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Brand::class);
+    }
+
+    public function findPage(int $page, int $limit): Paginator
+    {
+        $query = $this->createQueryBuilder('b')
+            ->select('b')
+            ->orderBy('b.name', 'ASC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->setHint(Paginator::HINT_ENABLE_DISTINCT, false);
+
+        return new Paginator($query);
     }
 }
