@@ -17,18 +17,19 @@ class Brand implements \Stringable
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"device.index", "device.show"})
+     * @Groups({"brand.index", "brand.show", "device.index", "device.show"})
      */
     private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"device.index", "device.show"})
+     * @Groups({"brand.index", "brand.show", "device.index", "device.show"})
      */
     private ?string $name = null;
 
     /**
      * @ORM\OneToMany(targetEntity=Device::class, mappedBy="brand", orphanRemoval=true)
+     * @Groups({"brand.show"})
      */
     private Collection $devices;
 
@@ -82,6 +83,14 @@ class Brand implements \Stringable
         }
 
         return $this;
+    }
+
+    /**
+     * @Groups({"brand.index", "brand.show"})
+     */
+    public function getDeviceCount(): int
+    {
+        return $this->getDevices()->count();
     }
 
     public function __toString(): string

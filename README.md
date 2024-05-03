@@ -33,6 +33,5 @@ php bin/console doctrine:migrations:migrate
 
 # (Recommended) Load the fixtures to get a starting data set.
 # You can update the initial users information in the User data fixture.
-# This downloads pictures from the Internet, so it may take some time to complete.
 php bin/console doctrine:fixtures:load
 ```

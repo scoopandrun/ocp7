@@ -3,20 +3,20 @@
 namespace App\Controller;
 
 use App\DTO\PaginationDTO;
-use App\Entity\Device;
-use App\Service\DeviceService;
+use App\Entity\Brand;
+use App\Service\BrandService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DeviceController extends AbstractController
+class BrandController extends AbstractController
 {
     /**
-     * @Route("/devices", name="device.index", methods={"GET"})
+     * @Route("/brands", name="brand.index", methods={"GET"})
      */
     public function index(
-        DeviceService $deviceService,
+        BrandService $brandService,
         Request $request
     ): JsonResponse {
         $paginationDTO = new PaginationDTO(
@@ -25,26 +25,26 @@ class DeviceController extends AbstractController
         );
 
         return $this->json(
-            $deviceService->findPage($paginationDTO),
+            $brandService->findPage($paginationDTO),
             200,
             [],
             [
-                'groups' => 'device.index',
+                'groups' => 'brand.index',
                 'pagination' => $paginationDTO,
             ]
         );
     }
 
     /**
-     * @Route("/devices/{id}", name="device.show", methods={"GET"})
+     * @Route("/brands/{id}", name="brand.show", methods={"GET"})
      */
-    public function show(Device $device): JsonResponse
+    public function show(Brand $brand): JsonResponse
     {
         return $this->json(
-            $device,
+            $brand,
             200,
             [],
-            ['groups' => 'device.show']
+            ['groups' => 'brand.show']
         );
     }
 }
