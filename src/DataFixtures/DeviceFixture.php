@@ -1,7 +1,8 @@
 <?php
 
-// Create a data fixture for the Device entity
+// Create a data fixture for the Device and Brand entities
 // Path: src/DataFixtures/DeviceFixture.php
+
 namespace App\DataFixtures;
 
 use App\Entity\Brand;
@@ -16,7 +17,6 @@ class DeviceFixture extends Fixture
     {
         // Brands
         foreach ($this->generateBrands() as $brand) {
-            $this->addReference($brand->getName(), $brand);
             $manager->persist($brand);
         }
 
@@ -48,10 +48,15 @@ class DeviceFixture extends Fixture
             'HTC',
             'Oppo',
             'Vivo',
+            'Microsoft',
         ];
 
         foreach ($brandsNames as $brandName) {
-            yield (new Brand)->setName($brandName);
+            $brand = (new Brand)->setName($brandName);
+
+            $this->addReference("brand-" . $brand->getName(), $brand);
+
+            yield $brand;
         }
     }
 
@@ -301,9 +306,10 @@ class DeviceFixture extends Fixture
         foreach ($devicesData as $deviceData) {
             $device = (new Device())
                 ->setModel($deviceData['model'])
+                ->setType($deviceData['type'])
                 ->setDateFirstCommercialized(new \DateTimeImmutable($deviceData['dateFirstCommercialized']))
                 ->setIsSold($deviceData['isSold'])
-                ->setBrand($this->getReference($deviceData['brand']))
+                ->setBrand($this->getReference("brand-" . $deviceData['brand']))
                 ->setDescription(Faker\Factory::create()->text(200));
 
             yield $device;
