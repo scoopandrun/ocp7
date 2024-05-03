@@ -12,7 +12,7 @@ use Faker;
 
 class DeviceFixture extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         // Brands
         foreach ($this->generateBrands() as $brand) {
