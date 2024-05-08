@@ -10,10 +10,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/api/devices", name="device.")
+ */
 class DeviceController extends AbstractController
 {
     /**
-     * @Route("/devices", name="device.index", methods={"GET"})
+     * @Route("/", name=".index", methods={"GET"})
      */
     public function index(
         DeviceService $deviceService,
@@ -21,7 +24,7 @@ class DeviceController extends AbstractController
     ): JsonResponse {
         $paginationDTO = new PaginationDTO(
             $request->query->getInt('page', 1),
-            $request->query->getInt('limit', 10)
+            $request->query->getInt('pageSize', 10)
         );
 
         return $this->json(
@@ -36,7 +39,7 @@ class DeviceController extends AbstractController
     }
 
     /**
-     * @Route("/devices/{id}", name="device.show", methods={"GET"})
+     * @Route("/{id}", name=".show", methods={"GET"})
      */
     public function show(Device $device): JsonResponse
     {

@@ -32,8 +32,10 @@ class PaginatorNormalizer implements ContextAwareNormalizerInterface
 
         // If the "pagination" key is set in the context, add pagination information
         if (isset($context["pagination"]) && $context["pagination"] instanceof PaginationDTO) {
-            $data["page"] = $context["pagination"]->page;
-            $data["pageSize"] = $context["pagination"]->limit;
+            /** @var PaginationDTO $paginationDTO */
+            $paginationDTO = $context["pagination"];
+            $data["page"] = $paginationDTO->page;
+            $data["pageSize"] = $paginationDTO->pageSize;
         }
 
         $data["items"] = $items;
