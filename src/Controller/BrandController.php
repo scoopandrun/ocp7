@@ -21,7 +21,7 @@ class BrandController extends AbstractController
     ): JsonResponse {
         $paginationDTO = new PaginationDTO(
             $request->query->getInt('page', 1),
-            $request->query->getInt('limit', 10)
+            $request->query->getInt('pageSize', 10)
         );
 
         return $this->json(

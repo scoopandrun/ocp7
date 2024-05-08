@@ -23,6 +23,8 @@
 ###> local environment ###
 /.docker/
 /docker/
+/.devcontainer/
 /.vscode/
 /.ignore/
+reset-fixtures.sh
 ###< local environment ###

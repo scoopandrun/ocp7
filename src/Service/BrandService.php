@@ -16,16 +16,17 @@ class BrandService
     }
 
     /**
-     * Finds a page of devices.
+     * Finds a page of brands.
      *
      * @param PaginationDTO $paginationDTO The pagination data transfer object.
-     * @return Paginator The devices.
+     * 
+     * @return Paginator The brands.
      */
     public function findPage(PaginationDTO $paginationDTO): Paginator
     {
         return $this->brandRepository->findPage(
             $paginationDTO->page,
-            $paginationDTO->limit
+            $paginationDTO->pageSize
         );
     }
 }

@@ -19,23 +19,23 @@ class PaginationDTO
      *
      * @var int
      */
-    public int $limit = 10;
+    public int $pageSize = 10;
 
     /**
      * Initializes a new instance of the PaginationDTO class.
      *
-     * @param int $page The current page number.
-     * @param int $limit The maximum number of items per page.
+     * @param int $page     The current page number.
+     * @param int $pageSize The maximum number of items per page.
      */
-    public function __construct(int $page, int $limit)
+    public function __construct(int $page, int $pageSize)
     {
         $this->page = max(1, $page);
 
-        // If $limit is less than 1, set it to the default (10)
-        if ($limit < 1) {
-            $this->limit = 10;
+        // If the page size is less than 1, set it to the default (10)
+        if ($pageSize < 1) {
+            $this->pageSize = 10;
         } else {
-            $this->limit = $limit;
+            $this->pageSize = $pageSize;
         }
     }
 }

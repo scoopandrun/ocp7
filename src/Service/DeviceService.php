@@ -19,13 +19,14 @@ class DeviceService
      * Finds a page of devices.
      *
      * @param PaginationDTO $paginationDTO The pagination data transfer object.
+     * 
      * @return Paginator The devices.
      */
     public function findPage(PaginationDTO $paginationDTO): Paginator
     {
         return $this->deviceRepository->findPage(
             $paginationDTO->page,
-            $paginationDTO->limit
+            $paginationDTO->pageSize
         );
     }
 }
