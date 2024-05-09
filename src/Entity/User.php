@@ -31,7 +31,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups({"user.index", "user.show"})
-     * @Assert\NotBlank(message="Please enter an email")
+     * @Assert\NotBlank(message="Please enter an email address")
+     * @Assert\Email(message="Please enter a valid email address")
      */
     private ?string $email = null;
 
@@ -53,6 +54,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private ?string $password = null;
 
+    /**
+     * @Assert\NotCompromisedPassword
+     * @Assert\Length(
+     *   min=10,
+     *   minMessage="Your password must be at least {{ limit }} characters long"
+     * )
+     */
     private ?string $plainPassword = null;
 
     public function getId(): ?int
@@ -154,5 +162,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         $this->plainPassword = null;
+    }
+
+    public function setPlainPassword(string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
     }
 }

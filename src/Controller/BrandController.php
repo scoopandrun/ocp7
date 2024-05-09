@@ -4,17 +4,29 @@ namespace App\Controller;
 
 use App\DTO\PaginationDTO;
 use App\Entity\Brand;
+use App\Security\Voter\DeviceVoter;
 use App\Service\BrandService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/api/brands", name="brand.")
  */
 class BrandController extends AbstractController
 {
+    public function __construct()
+    {
+        try {
+            $this->denyAccessUnlessGranted(DeviceVoter::VIEW);
+        } catch (AccessDeniedException $e) {
+            throw new HttpException(403, "Your company cannot use the API.");
+        }
+    }
+
     /**
      * @Route("/", name=".index", methods={"GET"})
      */
