@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -19,11 +20,20 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class UserController extends AbstractController
 {
-    private $user;
+    private User $user;
 
     public function __construct(Security $security)
     {
         $this->user = $security->getUser();
+
+        if (!$this->user instanceof User) {
+            throw new HttpException(
+                401,
+                "You must be logged in to view users",
+                null,
+                ['WWW-Authenticate' => 'Bearer']
+            );
+        }
     }
 
     /**
@@ -37,10 +47,6 @@ class UserController extends AbstractController
             $request->query->getInt('page', 1),
             $request->query->getInt('pageSize', 10)
         );
-
-        if (!$this->user instanceof User) {
-            return $this->json(null, 401);
-        }
 
         return $this->json(
             $userService->findPage($paginationDTO, $this->user->getCompany()),
@@ -56,21 +62,10 @@ class UserController extends AbstractController
     /**
      * @Route("/{id}", name=".show", methods={"GET"})
      */
-    public function show(
-        User $user,
-        SerializerInterface $serializer
-    ): JsonResponse {
-        if (!$this->user instanceof User) {
-            return $this->json(null, 401);
-        }
-
+    public function show(User $user): JsonResponse
+    {
         if ($user->getCompany() !== $this->user->getCompany()) {
-            return $this->json(
-                [
-                    "message" => "You cannot get information from another company's users"
-                ],
-                403
-            );
+            throw new HttpException(403, "You cannot view another company's users");
         }
 
         return $this->json(
@@ -90,16 +85,12 @@ class UserController extends AbstractController
         SerializerInterface $serializer,
         ValidatorInterface $validator
     ): JsonResponse {
-        if (!$this->user instanceof User) {
-            return $this->json(null, 401);
-        }
-
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $errors = $validator->validate($user);
 
         if (count($errors) > 0) {
-            return $this->json($errors, 400);
+            throw new HttpException(400, json_encode($errors));
         }
 
         $entityManager->persist($user);
@@ -120,17 +111,8 @@ class UserController extends AbstractController
         User $user,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        if (!$this->user instanceof User) {
-            return $this->json(null, 401);
-        }
-
         if ($user->getCompany() !== $this->user->getCompany()) {
-            return $this->json(
-                [
-                    "message" => "You cannot delete another company's user"
-                ],
-                403
-            );
+            throw new HttpException(403, "You cannot delete another company's users");
         }
 
         $entityManager->remove($user, true);
