@@ -58,6 +58,32 @@ class BrandController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/{id}/devices", name=".devices", methods={"GET"})
+     */
+    public function devices(
+        Brand $brand,
+        BrandService $brandService,
+        Request $request
+    ): JsonResponse {
+        $this->checkAccessGranted();
+
+        $paginationDTO = new PaginationDTO(
+            $request->query->getInt('page', 1),
+            $request->query->getInt('pageSize', 10)
+        );
+
+        return $this->json(
+            $brandService->findDevices($brand, $paginationDTO),
+            200,
+            [],
+            [
+                'groups' => 'brand.devices',
+                'pagination' => $paginationDTO,
+            ]
+        );
+    }
+
     private function checkAccessGranted(): void
     {
         try {

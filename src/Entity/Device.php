@@ -17,7 +17,7 @@ class Device
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"device.index", "brand.show"})
+     * @Groups({"device.index", "brand.show", "brand.devices"})
      */
     private ?int $id = null;
 
@@ -30,13 +30,13 @@ class Device
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"device.index", "device.show", "brand.show"})
+     * @Groups({"device.index", "device.show", "brand.show", "brand.devices"})
      */
     private ?string $model = null;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"device.index", "device.show", "brand.show"})
+     * @Groups({"device.index", "device.show", "brand.show", "brand.devices"})
      */
     private ?string $type = null;
 
