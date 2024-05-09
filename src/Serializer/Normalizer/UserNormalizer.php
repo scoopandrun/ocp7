@@ -46,6 +46,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
         $user = new User();
         $user->setEmail($data['email'] ?? "");
         $user->setCompany($currentUser->getCompany());
+        $user->setPlainPassword($data['password'] ?? ""); // This is useful for password validation
         $user->setPassword($this->passwordHasher->hashPassword($user, $data['password'] ?? ""));
 
         return $user;
