@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Brand;
 use App\Entity\Device;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -28,6 +29,20 @@ class DeviceRepository extends ServiceEntityRepository
             ->leftJoin('d.brand', 'b')
             ->select('d', 'b')
             ->orderBy('d.id', 'ASC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->setHint(Paginator::HINT_ENABLE_DISTINCT, false);
+
+        return new Paginator($query);
+    }
+
+    public function findDevicesFromBand(Brand $brand, int $page, int $limit): Paginator
+    {
+        $query = $this->createQueryBuilder('d')
+            ->leftJoin('d.brand', 'b')
+            ->where('d.brand = :brand')
+            ->setParameter('brand', $brand)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery()
