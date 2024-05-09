@@ -60,7 +60,7 @@ class Device
     private ?string $description = null;
 
     /**
-     * @ORM\Column(type="date_immutable", options={"default": "CURRENT_DATE"})
+     * @ORM\Column(type="date_immutable")
      */
     private ?\DateTimeImmutable $createdAt = null;
 
