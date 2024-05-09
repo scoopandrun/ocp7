@@ -18,15 +18,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  */
 class BrandController extends AbstractController
 {
-    public function __construct()
-    {
-        try {
-            $this->denyAccessUnlessGranted(DeviceVoter::VIEW);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "Your company cannot use the API.");
-        }
-    }
-
     /**
      * @Route("/", name=".index", methods={"GET"})
      */
@@ -34,6 +25,8 @@ class BrandController extends AbstractController
         BrandService $brandService,
         Request $request
     ): JsonResponse {
+        $this->checkAccessGranted();
+
         $paginationDTO = new PaginationDTO(
             $request->query->getInt('page', 1),
             $request->query->getInt('pageSize', 10)
@@ -55,11 +48,22 @@ class BrandController extends AbstractController
      */
     public function show(Brand $brand): JsonResponse
     {
+        $this->checkAccessGranted();
+
         return $this->json(
             $brand,
             200,
             [],
             ['groups' => 'brand.show']
         );
+    }
+
+    private function checkAccessGranted(): void
+    {
+        try {
+            $this->denyAccessUnlessGranted(DeviceVoter::VIEW);
+        } catch (AccessDeniedException $e) {
+            throw new HttpException(403, "Your company cannot use the API.");
+        }
     }
 }
