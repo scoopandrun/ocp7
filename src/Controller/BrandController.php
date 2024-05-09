@@ -10,10 +10,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/api/brands", name="brand.")
+ */
 class BrandController extends AbstractController
 {
     /**
-     * @Route("/brands", name="brand.index", methods={"GET"})
+     * @Route("/", name=".index", methods={"GET"})
      */
     public function index(
         BrandService $brandService,
@@ -36,7 +39,7 @@ class BrandController extends AbstractController
     }
 
     /**
-     * @Route("/brands/{id}", name="brand.show", methods={"GET"})
+     * @Route("/{id}", name=".show", methods={"GET"})
      */
     public function show(Brand $brand): JsonResponse
     {
