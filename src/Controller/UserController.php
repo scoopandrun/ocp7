@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\DTO\PaginationDTO;
 use App\Entity\User;
+use App\Security\Voter\UserVoter;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -25,15 +27,6 @@ class UserController extends AbstractController
     public function __construct(Security $security)
     {
         $this->user = $security->getUser();
-
-        if (!$this->user instanceof User) {
-            throw new HttpException(
-                401,
-                "You must be logged in to view users",
-                null,
-                ['WWW-Authenticate' => 'Bearer']
-            );
-        }
     }
 
     /**
@@ -43,6 +36,12 @@ class UserController extends AbstractController
         UserService $userService,
         Request $request
     ): JsonResponse {
+        try {
+            $this->denyAccessUnlessGranted(UserVoter::LIST);
+        } catch (AccessDeniedException $e) {
+            throw new HttpException(403, "You cannot view users");
+        }
+
         $paginationDTO = new PaginationDTO(
             $request->query->getInt('page', 1),
             $request->query->getInt('pageSize', 10)
@@ -64,7 +63,9 @@ class UserController extends AbstractController
      */
     public function show(User $user): JsonResponse
     {
-        if ($user->getCompany() !== $this->user->getCompany()) {
+        try {
+            $this->denyAccessUnlessGranted(UserVoter::VIEW, $user);
+        } catch (AccessDeniedException $e) {
             throw new HttpException(403, "You cannot view another company's users");
         }
 
@@ -85,6 +86,12 @@ class UserController extends AbstractController
         SerializerInterface $serializer,
         ValidatorInterface $validator
     ): JsonResponse {
+        try {
+            $this->denyAccessUnlessGranted(UserVoter::CREATE);
+        } catch (AccessDeniedException $e) {
+            throw new HttpException(403, "You cannot create users");
+        }
+
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
         $errors = $validator->validate($user);
@@ -112,7 +119,9 @@ class UserController extends AbstractController
         User $user,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        if ($user->getCompany() !== $this->user->getCompany()) {
+        try {
+            $this->denyAccessUnlessGranted(UserVoter::DELETE, $user);
+        } catch (AccessDeniedException $e) {
             throw new HttpException(403, "You cannot delete another company's users");
         }
 

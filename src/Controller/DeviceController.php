@@ -9,13 +9,24 @@ use App\Service\DeviceService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/api/devices", name="device.")
  */
 class DeviceController extends AbstractController
 {
+    public function __construct()
+    {
+        try {
+            $this->denyAccessUnlessGranted(DeviceVoter::VIEW);
+        } catch (AccessDeniedException $e) {
+            throw new HttpException(403, "Your company cannot use the API.");
+        }
+    }
+
     /**
      * @Route("/", name=".index", methods={"GET"})
      */
@@ -27,7 +38,6 @@ class DeviceController extends AbstractController
             $request->query->getInt('page', 1),
             $request->query->getInt('pageSize', 10)
         );
-        $this->denyAccessUnlessGranted(DeviceVoter::VIEW, Device::class);
 
         return $this->json(
             $deviceService->findPage($paginationDTO),
@@ -45,8 +55,6 @@ class DeviceController extends AbstractController
      */
     public function show(Device $device): JsonResponse
     {
-        $this->denyAccessUnlessGranted(DeviceVoter::VIEW, Device::class);
-
         return $this->json(
             $device,
             200,

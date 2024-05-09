@@ -13,10 +13,13 @@ class DeviceVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        // replace with your own logic
-        // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::VIEW])
-            && $subject instanceof \App\Entity\Device;
+        if (
+            in_array($attribute, [self::VIEW])
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -27,16 +30,20 @@ class DeviceVoter extends Voter
             return false;
         }
 
+        if (!is_null($subject) && !$subject instanceof Device) {
+            throw new \LogicException('The subject must be an instance of Device');
+        }
+
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case self::VIEW:
-                return $this->canView($user, $subject);
+                return $this->canView($user);
         }
 
         throw new \LogicException('This case is not implemented: ' . $attribute);
     }
 
-    private function canView(User $user, Device $device): bool
+    private function canView(User $user): bool
     {
         // A user can view devices if their company has the right to use the API
         return $user->getCompany()->canUseApi();
