@@ -90,7 +90,8 @@ class UserController extends AbstractController
         $errors = $validator->validate($user);
 
         if (count($errors) > 0) {
-            throw new HttpException(400, json_encode($errors));
+            $message = $serializer->serialize($errors, 'json');
+            throw new HttpException(400, $message);
         }
 
         $entityManager->persist($user);
