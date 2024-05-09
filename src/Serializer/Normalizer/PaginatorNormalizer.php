@@ -1,8 +1,8 @@
 <?php
 
-// Path: src/Normalizer/PaginatorNormalizer.php
+// Path: src/Serializer/Normalizer/PaginatorNormalizer.php
 
-namespace App\Normalizer;
+namespace App\Serializer\Normalizer;
 
 use App\DTO\PaginationDTO;
 use Doctrine\ORM\Tools\Pagination\Paginator;
