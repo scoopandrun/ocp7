@@ -10,6 +10,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExceptionSubscriber implements EventSubscriberInterface
 {
+    private string $environment;
+
+    public function __construct(string $environment)
+    {
+        $this->environment = $environment;
+    }
+
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
@@ -39,10 +46,16 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
             $response = new JsonResponse($data, $exception->getStatusCode());
         } else {
-            $response = new JsonResponse([
+            $responseData = [
                 'status' => 500,
                 'message' => $exception->getMessage(),
-            ], 500);
+            ];
+
+            if ($this->environment === 'dev') {
+                $responseData['stackTrace'] = $exception->getTrace();
+            }
+
+            $response = new JsonResponse($responseData, 500);
         }
 
         $event->setResponse($response);
