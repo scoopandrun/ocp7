@@ -1,11 +1,16 @@
 <?php
 
+// The Customer entity represents the customers of BileMo.
+// Customers have employees (User entity) that can use the API.
+// Path: src/Entity/Customer.php
+
 namespace App\Entity;
 
 use App\Repository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=CustomerRepository::class)
@@ -16,11 +21,13 @@ class Customer
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"user.show"})
      */
     private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user.show"})
      */
     private ?string $name = null;
 
