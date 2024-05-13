@@ -35,3 +35,7 @@ php bin/console doctrine:migrations:migrate
 # You can update the initial users information in the User data fixture.
 php bin/console doctrine:fixtures:load
 ```
+
+## Documentation
+
+Once the project is installed, the API documentation is available at /api/doc (HTML) or /api/doc.json (JSON).

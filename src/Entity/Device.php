@@ -52,17 +52,6 @@ class Device
     private ?string $type = null;
 
     /**
-     * @ORM\Column(type="date_immutable")
-     * @Context({DateTimeNormalizer::FORMAT_KEY = "Y-m-d"})
-     */
-    private ?\DateTimeImmutable $dateFirstCommercialized = null;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private bool $isSold = false;
-
-    /**
      * @ORM\Column(type="string")
      * @Groups({"device.show"})
      */
@@ -115,30 +104,6 @@ class Device
     public function setType(string $type): self
     {
         $this->type = $type;
-
-        return $this;
-    }
-
-    public function getDateFirstCommercialized(): ?\DateTimeImmutable
-    {
-        return $this->dateFirstCommercialized;
-    }
-
-    public function setDateFirstCommercialized(\DateTimeImmutable $dateFirstCommercialized): self
-    {
-        $this->dateFirstCommercialized = $dateFirstCommercialized;
-
-        return $this;
-    }
-
-    public function isSold(): ?bool
-    {
-        return $this->isSold;
-    }
-
-    public function setIsSold(bool $isSold): self
-    {
-        $this->isSold = $isSold;
 
         return $this;
     }
