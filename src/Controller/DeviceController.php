@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @Route("/api/devices", name="device")
@@ -25,10 +27,14 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class DeviceController extends AbstractController
 {
     private JMSSerializerInterface $jmsSerializer;
+    private TagAwareCacheInterface $cache;
 
-    public function __construct(JMSSerializerInterface $jmsSerializer)
-    {
+    public function __construct(
+        JMSSerializerInterface $jmsSerializer,
+        TagAwareCacheInterface $cache
+    ) {
         $this->jmsSerializer = $jmsSerializer;
+        $this->cache = $cache;
     }
 
     /**
@@ -79,22 +85,29 @@ class DeviceController extends AbstractController
     ): JsonResponse {
         $this->checkAccessGranted();
 
-        $paginationDTO = new PaginationDTO(
-            $request->query->getInt('page', 1),
-            $request->query->getInt('pageSize', 10)
-        );
+        $page = $request->query->getInt('page', 1);
+        $pageSize = $request->query->getInt('pageSize', 10);
 
-        $devices = $deviceService->findPage($paginationDTO);
+        $cacheKey = "devices_{$page}_{$pageSize}";
 
-        $context = (new SerializationContext())
-            ->setGroups([
-                'Default',
-                'items' => [
-                    'device.index',
-                    'brand' => ['device.index'],
-                ]
-            ]);
-        $serializedDevices = $this->jmsSerializer->serialize($devices, 'json', $context);
+        $serializedDevices = $this->cache->get($cacheKey, function (ItemInterface $item) use ($deviceService, $page, $pageSize) {
+            $item->tag(['devices']);
+
+            $paginationDTO = new PaginationDTO($page, $pageSize);
+
+            $devices = $deviceService->findPage($paginationDTO);
+
+            $context = (new SerializationContext())
+                ->setGroups([
+                    'Default',
+                    'items' => [
+                        'device.index',
+                        'brand' => ['device.index'],
+                    ]
+                ]);
+
+            return $this->jmsSerializer->serialize($devices, 'json', $context);
+        });
 
         return new JsonResponse(
             $serializedDevices,
@@ -117,8 +130,15 @@ class DeviceController extends AbstractController
     {
         $this->checkAccessGranted();
 
-        $context = (new SerializationContext())->setGroups(['device.show']);
-        $serializedDevice = $this->jmsSerializer->serialize($device, 'json', $context);
+        $cacheKey = "device_{$device->getId()}";
+
+        $serializedDevice = $this->cache->get($cacheKey, function (ItemInterface $item) use ($device) {
+            $item->tag(['devices']);
+
+            $context = (new SerializationContext())->setGroups(['device.show']);
+
+            return $this->jmsSerializer->serialize($device, 'json', $context);
+        });
 
         return new JsonResponse(
             $serializedDevice,

@@ -21,6 +21,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @Route("/api/users", name="user")
@@ -31,11 +33,16 @@ class UserController extends AbstractController
 {
     private User $user;
     private JMSSerializerInterface $jmsSerializer;
+    private TagAwareCacheInterface $cache;
 
-    public function __construct(Security $security, JMSSerializerInterface $jmsSerializer)
-    {
+    public function __construct(
+        Security $security,
+        JMSSerializerInterface $jmsSerializer,
+        TagAwareCacheInterface $cache
+    ) {
         $this->user = $security->getUser();
         $this->jmsSerializer = $jmsSerializer;
+        $this->cache = $cache;
     }
 
     /**
@@ -90,19 +97,28 @@ class UserController extends AbstractController
             throw new HttpException(403, "You cannot view users");
         }
 
-        $paginationDTO = new PaginationDTO(
-            $request->query->getInt('page', 1),
-            $request->query->getInt('pageSize', 10)
-        );
+        $page = $request->query->getInt('page', 1);
+        $pageSize = $request->query->getInt('pageSize', 10);
 
-        $users = $userService->findPage($paginationDTO, $this->user->getCompany());
+        $company = $this->user->getCompany();
 
-        $context = SerializationContext::create()
-            ->setGroups([
-                'Default',
-                'items' => ['user.index']
-            ]);
-        $serializedUsers = $this->jmsSerializer->serialize($users, 'json', $context);
+        $cacheKey = "users_{$company->getId()}_{$page}_{$pageSize}";
+
+        $serializedUsers = $this->cache->get($cacheKey, function (ItemInterface $item) use ($userService, $company, $page, $pageSize) {
+            $item->tag(['users']);
+
+            $paginationDTO = new PaginationDTO($page, $pageSize);
+
+            $users = $userService->findPage($paginationDTO, $company);
+
+            $context = SerializationContext::create()
+                ->setGroups([
+                    'Default',
+                    'items' => ['user.index']
+                ]);
+
+            return $this->jmsSerializer->serialize($users, 'json', $context);
+        });
 
         return new JsonResponse(
             $serializedUsers,
@@ -136,8 +152,15 @@ class UserController extends AbstractController
             throw new HttpException(403, "You cannot view another company's users");
         }
 
-        $context = SerializationContext::create()->setGroups(['user.show']);
-        $serializedUser = $this->jmsSerializer->serialize($user, 'json', $context);
+        $cacheKey = "user_{$user->getId()}";
+
+        $serializedUser = $this->cache->get($cacheKey, function (ItemInterface $item) use ($user) {
+            $item->tag(['users']);
+
+            $context = SerializationContext::create()->setGroups(['user.show']);
+
+            return $this->jmsSerializer->serialize($user, 'json', $context);
+        });
 
         return new JsonResponse(
             $serializedUser,
@@ -201,6 +224,8 @@ class UserController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
+        $this->cache->invalidateTags(['users']);
+
         $url = $urlGenerator->generate('user.show', ['id' => $user->getId()]);
 
         $context = SerializationContext::create()->setGroups(['user.show']);
@@ -241,6 +266,8 @@ class UserController extends AbstractController
 
         $entityManager->remove($user, true);
         $entityManager->flush();
+
+        $this->cache->invalidateTags(['users']);
 
         return $this->json(null, 204);
     }

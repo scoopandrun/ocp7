@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @Route("/api/brands", name="brand")
@@ -26,10 +28,14 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class BrandController extends AbstractController
 {
     private JMSSerializerInterface $jmsSerializer;
+    private TagAwareCacheInterface $cache;
 
-    public function __construct(JMSSerializerInterface $jmsSerializer)
-    {
+    public function __construct(
+        JMSSerializerInterface $jmsSerializer,
+        TagAwareCacheInterface $cache
+    ) {
         $this->jmsSerializer = $jmsSerializer;
+        $this->cache = $cache;
     }
 
     /**
@@ -78,19 +84,26 @@ class BrandController extends AbstractController
     {
         $this->checkAccessGranted();
 
-        $paginationDTO = new PaginationDTO(
-            $request->query->getInt('page', 1),
-            $request->query->getInt('pageSize', 10)
-        );
+        $page = $request->query->getInt('page', 1);
+        $pageSize = $request->query->getInt('pageSize', 10);
 
-        $brands = $brandService->findPage($paginationDTO);
+        $cacheKey = "brands_{$page}_{$pageSize}";
 
-        $context = SerializationContext::create()
-            ->setGroups([
-                'Default',
-                'items' => ['brand.index']
-            ]);
-        $serializedBrands = $this->jmsSerializer->serialize($brands, 'json', $context);
+        $serializedBrands = $this->cache->get($cacheKey, function (ItemInterface $item) use ($brandService, $page, $pageSize) {
+            $item->tag(['brands']);
+
+            $paginationDTO = new PaginationDTO($page, $pageSize);
+
+            $brands = $brandService->findPage($paginationDTO);
+
+            $context = SerializationContext::create()
+                ->setGroups([
+                    'Default',
+                    'items' => ['brand.index']
+                ]);
+
+            return $this->jmsSerializer->serialize($brands, 'json', $context);
+        });
 
         return new JsonResponse(
             $serializedBrands,
@@ -113,8 +126,15 @@ class BrandController extends AbstractController
     {
         $this->checkAccessGranted();
 
-        $context = SerializationContext::create()->setGroups(['brand.show']);
-        $serializedBrand = $this->jmsSerializer->serialize($brand, 'json', $context);
+        $cacheKey = "brand_{$brand->getId()}";
+
+        $serializedBrand = $this->cache->get($cacheKey, function (ItemInterface $item) use ($brand) {
+            $item->tag(['brands']);
+
+            $context = SerializationContext::create()->setGroups(['brand.show']);
+
+            return $this->jmsSerializer->serialize($brand, 'json', $context);
+        });
 
         return new JsonResponse(
             $serializedBrand,
@@ -173,19 +193,26 @@ class BrandController extends AbstractController
     ): JsonResponse {
         $this->checkAccessGranted();
 
-        $paginationDTO = new PaginationDTO(
-            $request->query->getInt('page', 1),
-            $request->query->getInt('pageSize', 10)
-        );
+        $page = $request->query->getInt('page', 1);
+        $pageSize = $request->query->getInt('pageSize', 10);
 
-        $devices = $brandService->findDevices($brand, $paginationDTO);
+        $cacheKey = "brand_{$brand->getId()}_devices_{$page}_{$pageSize}";
 
-        $context = SerializationContext::create()
-            ->setGroups([
-                'Default',
-                'items' => ['brand.devices']
-            ]);
-        $serializedDevices = $this->jmsSerializer->serialize($devices, 'json', $context);
+        $serializedDevices = $this->cache->get($cacheKey, function (ItemInterface $item) use ($brandService, $brand, $page, $pageSize) {
+            $item->tag(['brands', 'devices']);
+
+            $paginationDTO = new PaginationDTO($page, $pageSize);
+
+            $devices = $brandService->findDevices($brand, $paginationDTO);
+
+            $context = SerializationContext::create()
+                ->setGroups([
+                    'Default',
+                    'items' => ['brand.devices']
+                ]);
+
+            return $this->jmsSerializer->serialize($devices, 'json', $context);
+        });
 
         return new JsonResponse(
             $serializedDevices,
