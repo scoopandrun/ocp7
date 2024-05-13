@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\DTO\PaginationDTO;
 use App\Entity\Brand;
+use App\Entity\Device;
 use App\Security\Voter\DeviceVoter;
 use App\Service\BrandService;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,11 +18,33 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/api/brands", name="brand.")
+ * 
+ * @OA\Tag(name="Brands")
  */
 class BrandController extends AbstractController
 {
     /**
      * @Route("/", name=".index", methods={"GET"})
+     * 
+     * @OA\Response(
+     *  response=200,
+     * description="Returns the list of brands",
+     * @Model(type=Brand::class, groups={"brand.index"})
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="page",
+     *   in="query",
+     *   description="The page number",
+     *   @OA\Schema(type="integer")
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="pageSize",
+     *   in="query",
+     *   description="The number of items per page",
+     *   @OA\Schema(type="integer")
+     * )
      */
     public function index(
         BrandService $brandService,
@@ -45,6 +70,12 @@ class BrandController extends AbstractController
 
     /**
      * @Route("/{id}", name=".show", methods={"GET"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Returns the brand",
+     *   @Model(type=Brand::class, groups={"brand.show"})
+     * )
      */
     public function show(Brand $brand): JsonResponse
     {
@@ -60,6 +91,26 @@ class BrandController extends AbstractController
 
     /**
      * @Route("/{id}/devices", name=".devices", methods={"GET"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Returns the list of devices for the brand",
+     *   @Model(type=Device::class, groups={"brand.devices"})
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="page",
+     *   in="query",
+     *   description="The page number",
+     *   @OA\Schema(type="integer")
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="pageSize",
+     *   in="query",
+     *   description="The number of items per page",
+     *   @OA\Schema(type="integer")
+     * )
      */
     public function devices(
         Brand $brand,

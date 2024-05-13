@@ -6,6 +6,8 @@ use App\DTO\PaginationDTO;
 use App\Entity\Device;
 use App\Security\Voter\DeviceVoter;
 use App\Service\DeviceService;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,11 +17,33 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @Route("/api/devices", name="device.")
+ * 
+ * @OA\Tag(name="Devices")
  */
 class DeviceController extends AbstractController
 {
     /**
      * @Route("/", name=".index", methods={"GET"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Returns the list of devices",
+     *   @Model(type=Device::class, groups={"device.index"})
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="page",
+     *   in="query",
+     *   description="The page number",
+     *   @OA\Schema(type="integer")
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="pageSize",
+     *   in="query",
+     *   description="The number of items per page",
+     *   @OA\Schema(type="integer")
+     * )
      */
     public function index(
         DeviceService $deviceService,
@@ -45,6 +69,12 @@ class DeviceController extends AbstractController
 
     /**
      * @Route("/{id}", name=".show", methods={"GET"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Returns the device",
+     *   @Model(type=Device::class, groups={"device.show"})
+     * )
      */
     public function show(Device $device): JsonResponse
     {

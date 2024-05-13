@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Security\Voter\UserVoter;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +21,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/users", name="user.")
+ * 
+ * @OA\Tag(name="Users")
  */
 class UserController extends AbstractController
 {
@@ -31,6 +35,26 @@ class UserController extends AbstractController
 
     /**
      * @Route("/", name=".index", methods={"GET"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Returns the list of users for the customer",
+     *   @Model(type=User::class, groups={"user.index"})
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="page",
+     *   in="query",
+     *   description="The page number",
+     *   @OA\Schema(type="integer")
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="pageSize",
+     *   in="query",
+     *   description="The number of items per page",
+     *   @OA\Schema(type="integer")
+     * )
      */
     public function index(
         UserService $userService,
@@ -60,6 +84,19 @@ class UserController extends AbstractController
 
     /**
      * @Route("/{id}", name=".show", methods={"GET"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Returns a specific user",
+     *   @Model(type=User::class, groups={"user.show"})
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="id",
+     *   in="path",
+     *   description="The user ID",
+     *   @OA\Schema(type="integer")
+     * )
      */
     public function show(User $user): JsonResponse
     {
@@ -79,6 +116,32 @@ class UserController extends AbstractController
 
     /**
      * @Route("/", name=".create", methods={"POST"})
+     * 
+     * @OA\Response(
+     *   response=201,
+     *   description="Creates a new user",
+     *   headers={
+     *     @OA\Header(
+     *       header="Location",
+     *       description="The URL to the new user",
+     *       @OA\Schema(type="string")
+     *     )
+     *   },
+     *   @Model(type=User::class, groups={"user.show"})
+     * )
+     * 
+     * @OA\Response(
+     *   response=400,
+     *   description="Validation error",
+     *   @OA\JsonContent(
+     *     type="object",
+     *     @OA\Schema(ref="#/components/schemas/ConstraintViolations")
+     *   )
+     * )
+     * 
+     * @OA\RequestBody(
+     *   @Model(type=User::class, groups={"user.create"})
+     * )
      */
     public function create(
         Request $request,
@@ -114,6 +177,18 @@ class UserController extends AbstractController
 
     /**
      * @Route("/{id}", name=".delete", methods={"DELETE"})
+     * 
+     * @OA\Response(
+     *   response=204,
+     *   description="Deletes a user"
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="id",
+     *   in="path",
+     *   description="The user ID",
+     *   @OA\Schema(type="integer")
+     * )
      */
     public function delete(
         User $user,
