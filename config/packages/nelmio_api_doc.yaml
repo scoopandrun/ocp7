@@ -1,0 +1,93 @@
+nelmio_api_doc:
+    documentation:
+        servers:
+            - url: http://bilemo.localhost/api
+
+        info:
+            title: BileMo API
+            description: BileMo API documentation
+            version: 1.0.0
+
+        paths:
+            "/api/login_check":
+                post:
+                    tags:
+                        - Authentication
+                    summary: Authenticate a user
+                    requestBody:
+                        required: true
+                        description: Get a JWT token
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: "#/components/schemas/Credentials"
+                    responses:
+                        "200":
+                            description: "Success"
+                            content:
+                                application/json:
+                                schema:
+                                    $ref: "#/components/schemas/Token"
+
+        components:
+            schemas:
+                Token:
+                    type: object
+                    properties:
+                        token:
+                            type: string
+                            readonly: true
+                Credentials:
+                    type: object
+                    properties:
+                        username:
+                            type: string
+                            example: "admin@example.com"
+                        password:
+                            type: string
+                            example: "password"
+                ConstraintViolations:
+                    type: object
+                    properties:
+                        status:
+                            type: integer
+                            example: 400
+                        message:
+                            type: string
+                            example: "Validation error"
+                        errors:
+                            type: object
+                            properties:
+                                email:
+                                    type: array
+                                    items:
+                                        type: string
+                                        example:
+                                            [
+                                                "Error message 1 for email",
+                                                "Error message 2 for email",
+                                            ]
+                                password:
+                                    type: array
+                                    items:
+                                        type: string
+                                        example:
+                                            [
+                                                "Error message 1 for password",
+                                                "Error message 2 for password",
+                                            ]
+        securitySchemes:
+            bearerAuth:
+                type: apiKey
+                name: Authorization
+                in: header
+                scheme: bearer
+                bearerFormat: JWT
+
+        security:
+            - bearerAuth: []
+
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+        disable_default_routes: true

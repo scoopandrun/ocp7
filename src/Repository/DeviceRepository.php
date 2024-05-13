@@ -7,6 +7,8 @@ use App\Entity\Device;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 
 /**
  * @extends ServiceEntityRepository<Device>
@@ -18,36 +20,41 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class DeviceRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private PaginatorInterface $paginator;
+
+    public function __construct(ManagerRegistry $registry, PaginatorInterface $paginator)
     {
         parent::__construct($registry, Device::class);
+        $this->paginator = $paginator;
     }
 
-    public function findPage(int $page, int $limit): Paginator
+    public function findPage(int $page, int $limit): PaginationInterface
     {
-        $query = $this->createQueryBuilder('d')
-            ->leftJoin('d.brand', 'b')
-            ->select('d', 'b')
-            ->orderBy('d.id', 'ASC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->setHint(Paginator::HINT_ENABLE_DISTINCT, false);
+        $paginator = $this->paginator->paginate(
+            $this->createQueryBuilder('d')
+                ->orderBy('d.id', 'ASC')
+                ->getQuery()
+                ->setHint(Paginator::HINT_ENABLE_DISTINCT, false),
+            $page,
+            $limit
+        );
 
-        return new Paginator($query);
+        return $paginator;
     }
 
-    public function findDevicesFromBand(Brand $brand, int $page, int $limit): Paginator
+    public function findDevicesFromBand(Brand $brand, int $page, int $limit): PaginationInterface
     {
-        $query = $this->createQueryBuilder('d')
-            ->leftJoin('d.brand', 'b')
-            ->where('d.brand = :brand')
-            ->setParameter('brand', $brand)
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->setHint(Paginator::HINT_ENABLE_DISTINCT, false);
+        $paginator = $this->paginator->paginate(
+            $this->createQueryBuilder('d')
+                ->where('d.brand = :brand')
+                ->setParameter('brand', $brand)
+                ->orderBy('d.id', 'ASC')
+                ->getQuery()
+                ->setHint(Paginator::HINT_ENABLE_DISTINCT, false),
+            $page,
+            $limit
+        );
 
-        return new Paginator($query);
+        return $paginator;
     }
 }

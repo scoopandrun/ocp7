@@ -6,7 +6,7 @@ use App\DTO\PaginationDTO;
 use App\Entity\Brand;
 use App\Repository\BrandRepository;
 use App\Repository\DeviceRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 
 class BrandService
 {
@@ -26,9 +26,9 @@ class BrandService
      *
      * @param PaginationDTO $paginationDTO The pagination data transfer object.
      * 
-     * @return Paginator The brands.
+     * @return PaginationInterface The brands.
      */
-    public function findPage(PaginationDTO $paginationDTO): Paginator
+    public function findPage(PaginationDTO $paginationDTO): PaginationInterface
     {
         return $this->brandRepository->findPage(
             $paginationDTO->page,
@@ -41,9 +41,9 @@ class BrandService
      *
      * @param Brand $brand The brand.
      * 
-     * @return Paginator The devices.
+     * @return PaginationInterface The devices.
      */
-    public function findDevices(Brand $brand, PaginationDTO $paginationDTO): Paginator
+    public function findDevices(Brand $brand, PaginationDTO $paginationDTO): PaginationInterface
     {
         return $this->deviceRepository->findDevicesFromBand(
             $brand,
