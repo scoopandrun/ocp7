@@ -6,6 +6,8 @@ use App\DTO\PaginationDTO;
 use App\Entity\Device;
 use App\Security\Voter\DeviceVoter;
 use App\Service\DeviceService;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface as JMSSerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,19 +18,45 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
- * @Route("/api/devices", name="device.")
+ * @Route("/api/devices", name="device")
  * 
  * @OA\Tag(name="Devices")
  */
 class DeviceController extends AbstractController
 {
+    private JMSSerializerInterface $jmsSerializer;
+
+    public function __construct(JMSSerializerInterface $jmsSerializer)
+    {
+        $this->jmsSerializer = $jmsSerializer;
+    }
+
     /**
      * @Route("/", name=".index", methods={"GET"})
      * 
      * @OA\Response(
      *   response=200,
      *   description="Returns the list of devices",
-     *   @Model(type=Device::class, groups={"device.index"})
+     *   @OA\JsonContent(
+     *     type="object",
+     *     @OA\Property(
+     *       property="currentPageNumber",
+     *       type="integer"
+     *     ),
+     *     @OA\Property(
+     *       property="numItemsPerPage",
+     *       type="integer"
+     *     ),
+     *     @OA\Property(
+     *       property="items",
+     *       type="array",
+     *       @OA\Items(ref=@Model(type=Device::class, groups={"device.index"}))
+     *     ),
+     *     @OA\Property(
+     *       property="totalCount",
+     *       type="integer"
+     *     )
+     *   )
      * )
      * 
      * @OA\Parameter(
@@ -56,14 +84,23 @@ class DeviceController extends AbstractController
             $request->query->getInt('pageSize', 10)
         );
 
-        return $this->json(
-            $deviceService->findPage($paginationDTO),
+        $devices = $deviceService->findPage($paginationDTO);
+
+        $context = (new SerializationContext())
+            ->setGroups([
+                'Default',
+                'items' => [
+                    'device.index',
+                    'brand' => ['device.index'],
+                ]
+            ]);
+        $serializedDevices = $this->jmsSerializer->serialize($devices, 'json', $context);
+
+        return new JsonResponse(
+            $serializedDevices,
             200,
             [],
-            [
-                'groups' => 'device.index',
-                'pagination' => $paginationDTO,
-            ]
+            true
         );
     }
 
@@ -80,11 +117,14 @@ class DeviceController extends AbstractController
     {
         $this->checkAccessGranted();
 
-        return $this->json(
-            $device,
+        $context = (new SerializationContext())->setGroups(['device.show']);
+        $serializedDevice = $this->jmsSerializer->serialize($device, 'json', $context);
+
+        return new JsonResponse(
+            $serializedDevice,
             200,
             [],
-            ['groups' => 'device.show']
+            true
         );
     }
 

@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Security\Voter\UserVoter;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface as JMSSerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,23 +16,26 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @Route("/api/users", name="user.")
+ * @Route("/api/users", name="user")
  * 
  * @OA\Tag(name="Users")
  */
 class UserController extends AbstractController
 {
     private User $user;
+    private JMSSerializerInterface $jmsSerializer;
 
-    public function __construct(Security $security)
+    public function __construct(Security $security, JMSSerializerInterface $jmsSerializer)
     {
         $this->user = $security->getUser();
+        $this->jmsSerializer = $jmsSerializer;
     }
 
     /**
@@ -39,7 +44,26 @@ class UserController extends AbstractController
      * @OA\Response(
      *   response=200,
      *   description="Returns the list of users for the customer",
-     *   @Model(type=User::class, groups={"user.index"})
+     *   @OA\JsonContent(
+     *     type="object",
+     *     @OA\Property(
+     *       property="currentPageNumber",
+     *       type="integer"
+     *     ),
+     *     @OA\Property(
+     *       property="numItemsPerPage",
+     *       type="integer"
+     *     ),
+     *     @OA\Property(
+     *       property="items",
+     *       type="array",
+     *       @OA\Items(ref=@Model(type=User::class, groups={"user.index"}))
+     *     ),
+     *     @OA\Property(
+     *       property="totalCount",
+     *       type="integer"
+     *     )
+     *   )
      * )
      * 
      * @OA\Parameter(
@@ -71,14 +95,20 @@ class UserController extends AbstractController
             $request->query->getInt('pageSize', 10)
         );
 
-        return $this->json(
-            $userService->findPage($paginationDTO, $this->user->getCompany()),
+        $users = $userService->findPage($paginationDTO, $this->user->getCompany());
+
+        $context = SerializationContext::create()
+            ->setGroups([
+                'Default',
+                'items' => ['user.index']
+            ]);
+        $serializedUsers = $this->jmsSerializer->serialize($users, 'json', $context);
+
+        return new JsonResponse(
+            $serializedUsers,
             200,
             [],
-            [
-                'groups' => 'user.index',
-                'pagination' => $paginationDTO,
-            ]
+            true
         );
     }
 
@@ -106,11 +136,14 @@ class UserController extends AbstractController
             throw new HttpException(403, "You cannot view another company's users");
         }
 
-        return $this->json(
-            $user,
+        $context = SerializationContext::create()->setGroups(['user.show']);
+        $serializedUser = $this->jmsSerializer->serialize($user, 'json', $context);
+
+        return new JsonResponse(
+            $serializedUser,
             200,
             [],
-            ['groups' => 'user.show']
+            true
         );
     }
 
@@ -146,8 +179,9 @@ class UserController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
         SerializerInterface $serializer,
-        ValidatorInterface $validator
+        UrlGeneratorInterface $urlGenerator
     ): JsonResponse {
         try {
             $this->denyAccessUnlessGranted(UserVoter::CREATE);
@@ -167,11 +201,16 @@ class UserController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        return $this->json(
-            $user,
+        $url = $urlGenerator->generate('user.show', ['id' => $user->getId()]);
+
+        $context = SerializationContext::create()->setGroups(['user.show']);
+        $serializedUser = $this->jmsSerializer->serialize($user, 'json', $context);
+
+        return new JsonResponse(
+            $serializedUser,
             201,
-            [],
-            ['groups' => 'user.show']
+            ["Location" => $url],
+            true
         );
     }
 

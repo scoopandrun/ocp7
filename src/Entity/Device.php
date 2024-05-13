@@ -5,9 +5,10 @@ namespace App\Entity;
 use App\Repository\DeviceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Context;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+
 
 /**
  * @Hateoas\Relation(
@@ -52,14 +53,12 @@ class Device
 
     /**
      * @ORM\Column(type="date_immutable")
-     * @Groups({"device.index", "device.show"})
      * @Context({DateTimeNormalizer::FORMAT_KEY = "Y-m-d"})
      */
     private ?\DateTimeImmutable $dateFirstCommercialized = null;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"device.index", "device.show"})
      */
     private bool $isSold = false;
 

@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\DTO\PaginationDTO;
 use App\Repository\DeviceRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 
 class DeviceService
 {
@@ -20,9 +20,9 @@ class DeviceService
      *
      * @param PaginationDTO $paginationDTO The pagination data transfer object.
      * 
-     * @return Paginator The devices.
+     * @return PaginationInterface The devices.
      */
-    public function findPage(PaginationDTO $paginationDTO): Paginator
+    public function findPage(PaginationDTO $paginationDTO): PaginationInterface
     {
         return $this->deviceRepository->findPage(
             $paginationDTO->page,
