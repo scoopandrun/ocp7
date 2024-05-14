@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\PaginationDTO;
+use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Security\Voter\UserVoter;
 use App\Service\UserService;
@@ -204,7 +205,8 @@ class UserController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         SerializerInterface $serializer,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        UserService $userService
     ): JsonResponse {
         try {
             $this->denyAccessUnlessGranted(UserVoter::CREATE);
@@ -212,14 +214,17 @@ class UserController extends AbstractController
             throw new HttpException(403, "You cannot create users");
         }
 
-        $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+        /** @var UserDTO */
+        $userDTO = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
 
-        $errors = $validator->validate($user);
+        $errors = $validator->validate($userDTO, null, ['Default', 'create']);
 
         if (count($errors) > 0) {
             $message = $serializer->serialize($errors, 'json');
             throw new HttpException(400, $message);
         }
+
+        $user = $userService->fillInUserEntityFromUserInformationDTO($userDTO);
 
         $entityManager->persist($user);
         $entityManager->flush();

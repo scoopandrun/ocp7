@@ -20,12 +20,6 @@ class ConstraintViolationListNormalizer implements NormalizerInterface
         $violationsCount = count($violations);
         for ($i = 0; $i < $violationsCount; $i++) {
             $property = $violations[$i]->getPropertyPath();
-
-            // Use a clearer label for the password field
-            if ($property === "plainPassword") {
-                $property = "password";
-            }
-
             $errors[$property][] = $violations[$i]->getMessage();
         }
 

@@ -10,10 +10,8 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation\Groups;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Hateoas\Relation(
@@ -26,6 +24,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * 
  * @Hateoas\Relation(
+ *   "update",
+ *   href = @Hateoas\Route(
+ *     "user.update",
+ *     parameters = { "id" = "expr(object.getId())" }
+ *   ),
+ *   exclusion = @Hateoas\Exclusion(groups = { "user.show" })
+ * )
+ * 
+ * @Hateoas\Relation(
  *   "delete",
  *   href = @Hateoas\Route(
  *     "user.delete",
@@ -35,7 +42,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * 
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -49,11 +55,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user.index", "user.show", "user.create"})
-     * @Assert\NotBlank(message="Please enter an email address")
-     * @Assert\Email(message="Please enter a valid email address")
+     * @Groups({"user.index", "user.show", "user.create", "user.update"})
      */
     private ?string $email = null;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups({"user.index", "user.show", "user.create", "user.update"})
+     */
+    private $fullname;
 
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="users")
@@ -70,17 +80,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Groups({"user.create"})
      */
     private ?string $password = null;
 
-    /**
-     * @Assert\NotCompromisedPassword
-     * @Assert\Length(
-     *   min=10,
-     *   minMessage="Your password must be at least {{ limit }} characters long"
-     * )
-     */
     private ?string $plainPassword = null;
 
     public function getId(): ?int
@@ -96,6 +98,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getFullname(): ?string
+    {
+        return $this->fullname;
+    }
+
+    public function setFullname(string $fullname): self
+    {
+        $this->fullname = $fullname;
 
         return $this;
     }
@@ -182,12 +196,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         $this->plainPassword = null;
-    }
-
-    public function setPlainPassword(string $plainPassword): self
-    {
-        $this->plainPassword = $plainPassword;
-
-        return $this;
     }
 }

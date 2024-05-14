@@ -6,6 +6,7 @@
 namespace App\Serializer\Normalizer;
 
 use App\Entity\User;
+use App\DTO\UserDTO;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
@@ -16,16 +17,13 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
 {
     private $normalizer;
     private $security;
-    private $passwordHasher;
 
     public function __construct(
         ObjectNormalizer $normalizer,
-        Security $security,
-        UserPasswordHasherInterface $passwordHasher
+        Security $security
     ) {
         $this->normalizer = $normalizer;
         $this->security = $security;
-        $this->passwordHasher = $passwordHasher;
     }
 
     public function normalize($user, ?string $format = null, array $context = [])
@@ -43,22 +41,23 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
         /** @var User */
         $currentUser = $this->security->getUser();
 
-        $user = new User();
-        $user->setEmail($data['email'] ?? "");
-        $user->setCompany($currentUser->getCompany());
-        $user->setPlainPassword($data['password'] ?? ""); // This is useful for password validation
-        $user->setPassword($this->passwordHasher->hashPassword($user, $data['password'] ?? ""));
+        $userDTO = new UserDTO(
+            $data['email'] ?? null,
+            $data['fullname'] ?? null,
+            $data['password'] ?? null,
+            $currentUser->getCompany()
+        );
 
-        return $user;
+        return $userDTO;
     }
 
     public function supportsNormalization($data, ?string $format = null, array $context = [])
     {
-        return $data instanceof User;
+        return $data instanceof UserDTO;
     }
 
     public function supportsDenormalization($data, string $type, ?string $format = null)
     {
-        return $type === User::class;
+        return $type === UserDTO::class;
     }
 }

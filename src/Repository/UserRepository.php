@@ -72,5 +72,27 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setHint(Paginator::HINT_ENABLE_DISTINCT, false);
 
         return new Paginator($query);
+
+    /**
+     * Checks if an email is already taken.
+     * 
+     * @param string $email The email to check.
+     * @param int|null $id Optional. The ID of the user to exclude from the check.
+     * 
+     * @return bool True if the email is already taken, false otherwise.
+     */
+    public function checkEmailAlreadyTaken(string $email, ?int $id = null): bool
+    {
+        $qb =  $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.email = :email')
+            ->setParameter('email', $email);
+
+        if ($id) {
+            $qb->andWhere('u.id != :id')
+                ->setParameter('id', $id);
+        }
+
+        return (bool) $qb->getQuery()->getSingleScalarResult();
     }
 }
