@@ -191,8 +191,7 @@ class UserController extends AbstractController
      *   response=400,
      *   description="Validation error",
      *   @OA\JsonContent(
-     *     type="object",
-     *     @OA\Schema(ref="#/components/schemas/ConstraintViolations")
+     *     ref="#/components/schemas/ConstraintViolations"
      *   )
      * )
      * 
@@ -257,8 +256,7 @@ class UserController extends AbstractController
      *   response=400,
      *   description="Validation error",
      *   @OA\JsonContent(
-     *     type="object",
-     *     @OA\Schema(ref="#/components/schemas/ConstraintViolations")
+     *     ref="#/components/schemas/ConstraintViolations"
      *   )
      * )
      * 
