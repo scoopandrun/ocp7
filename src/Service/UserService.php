@@ -8,6 +8,7 @@ use App\Entity\Customer;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Knp\Component\Pager\Pagination\PaginationInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
@@ -59,9 +60,9 @@ class UserService
      *
      * @param PaginationDTO $paginationDTO The pagination data transfer object.
      * 
-     * @return Paginator The users.
+     * @return PaginationInterface The users.
      */
-    public function findPage(PaginationDTO $paginationDTO, Customer $company): Paginator
+    public function findPage(PaginationDTO $paginationDTO, Customer $company): PaginationInterface
     {
         return $this->userRepository->findPage(
             $paginationDTO->page,

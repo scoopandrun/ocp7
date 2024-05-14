@@ -7,6 +7,8 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -21,9 +23,12 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    private PaginatorInterface $paginator;
+
+    public function __construct(ManagerRegistry $registry, PaginatorInterface $paginator)
     {
         parent::__construct($registry, User::class);
+        $this->paginator = $paginator;
     }
 
     public function add(User $entity, bool $flush = false): void
@@ -58,20 +63,23 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->add($user, true);
     }
 
-    public function findPage(int $page, int $limit, Customer $company): Paginator
+    public function findPage(int $page, int $limit, Customer $company): PaginationInterface
     {
-        $query = $this->createQueryBuilder('u')
-            ->leftJoin('u.company', 'c')
-            ->select('u', 'c')
-            ->where('c = :company')
-            ->setParameter('company', $company)
-            ->orderBy('u.id', 'ASC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->setHint(Paginator::HINT_ENABLE_DISTINCT, false);
+        $paginator = $this->paginator->paginate(
+            $this->createQueryBuilder('u')
+                ->leftJoin('u.company', 'c')
+                ->select('u', 'c')
+                ->where('c = :company')
+                ->setParameter('company', $company)
+                ->orderBy('u.id', 'ASC')
+                ->getQuery()
+                ->setHint(Paginator::HINT_ENABLE_DISTINCT, false),
+            $page,
+            $limit
+        );
 
-        return new Paginator($query);
+        return $paginator;
+    }
 
     /**
      * Checks if an email is already taken.
