@@ -18,7 +18,7 @@ class UniqueEmailValidator extends ConstraintValidator
         $this->entityManager = $entityManager;
     }
 
-    public function validate($userDTO, Constraint $constraint)
+    public function validate($userDTO, Constraint $constraint): void
     {
         if (!$userDTO instanceof UserDTO) {
             throw new UnexpectedValueException($userDTO, UserDTO::class);
