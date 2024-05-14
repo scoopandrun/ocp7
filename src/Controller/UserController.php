@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\PaginationDTO;
+use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Security\Voter\UserVoter;
 use App\Service\UserService;
@@ -46,7 +47,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/", name=".index", methods={"GET"})
+     * @Route("", name=".index", methods={"GET"})
      * 
      * @OA\Response(
      *   response=200,
@@ -171,7 +172,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/", name=".create", methods={"POST"})
+     * @Route("", name=".create", methods={"POST"})
      * 
      * @OA\Response(
      *   response=201,
@@ -204,7 +205,8 @@ class UserController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         SerializerInterface $serializer,
-        UrlGeneratorInterface $urlGenerator
+        UrlGeneratorInterface $urlGenerator,
+        UserService $userService
     ): JsonResponse {
         try {
             $this->denyAccessUnlessGranted(UserVoter::CREATE);
@@ -212,14 +214,17 @@ class UserController extends AbstractController
             throw new HttpException(403, "You cannot create users");
         }
 
-        $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+        /** @var UserDTO */
+        $userDTO = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
 
-        $errors = $validator->validate($user);
+        $errors = $validator->validate($userDTO, null, ['Default', 'create']);
 
         if (count($errors) > 0) {
             $message = $serializer->serialize($errors, 'json');
             throw new HttpException(400, $message);
         }
+
+        $user = $userService->fillInUserEntityFromUserInformationDTO($userDTO);
 
         $entityManager->persist($user);
         $entityManager->flush();
@@ -235,6 +240,78 @@ class UserController extends AbstractController
             $serializedUser,
             201,
             ["Location" => $url],
+            true
+        );
+    }
+
+    /**
+     * @Route("/{id}", name=".update", methods={"PUT"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Updates a user",
+     *   @Model(type=User::class, groups={"user.show"})
+     * )
+     * 
+     * @OA\Response(
+     *   response=400,
+     *   description="Validation error",
+     *   @OA\JsonContent(
+     *     type="object",
+     *     @OA\Schema(ref="#/components/schemas/ConstraintViolations")
+     *   )
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="id",
+     *   in="path",
+     *   description="The user ID",
+     *   @OA\Schema(type="integer")
+     * )
+     * 
+     * @OA\RequestBody(
+     *   @Model(type=User::class, groups={"user.update"})
+     * )
+     */
+    public function update(
+        User $user,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        SerializerInterface $serializer,
+        UserService $userService
+    ): JsonResponse {
+        try {
+            $this->denyAccessUnlessGranted(UserVoter::UPDATE, $user);
+        } catch (AccessDeniedException $e) {
+            throw new HttpException(403, "You cannot update another company's users");
+        }
+
+        /** @var UserDTO */
+        $userDTO = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
+
+        $userDTO->setId($user->getId());
+
+        $errors = $validator->validate($userDTO);
+
+        if (count($errors) > 0) {
+            $message = $serializer->serialize($errors, 'json');
+            throw new HttpException(400, $message);
+        }
+
+        $user = $userService->fillInUserEntityFromUserInformationDTO($userDTO, $user);
+
+        $entityManager->flush();
+
+        $this->cache->invalidateTags(['users']);
+
+        $context = SerializationContext::create()->setGroups(['user.show']);
+        $serializedUser = $this->jmsSerializer->serialize($user, 'json', $context);
+
+        return new JsonResponse(
+            $serializedUser,
+            200,
+            [],
             true
         );
     }

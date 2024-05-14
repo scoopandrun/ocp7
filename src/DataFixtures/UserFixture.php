@@ -67,14 +67,16 @@ class UserFixture extends Fixture
         // Persistant users for testing
         $user1 = (new User())
             ->setEmail("user1@example.com")
-            ->setCompany($this->getReference("customer-" . $this->companyNames[0]));
+            ->setCompany($this->getReference("customer-" . $this->companyNames[0]))
+            ->setFullname("John Doe");
         $user1->setPassword($this->passwordHasher->hashPassword($user1, "password"));
 
         yield $user1;
 
         $user2 = (new User())
             ->setEmail("user2@example.com")
-            ->setCompany($this->getReference("customer-" . $this->companyNames[1]));
+            ->setCompany($this->getReference("customer-" . $this->companyNames[1]))
+            ->setFullname("Jane Doe");
         $user2->setPassword($this->passwordHasher->hashPassword($user2, "password"));
 
         yield $user2;
@@ -83,7 +85,8 @@ class UserFixture extends Fixture
             for ($i = 0; $i < 15; $i++) {
                 $user = (new User())
                     ->setEmail($faker->email)
-                    ->setCompany($this->getReference("customer-" . $companyName));
+                    ->setCompany($this->getReference("customer-" . $companyName))
+                    ->setFullname($faker->name);
                 $user->setPassword($this->passwordHasher->hashPassword($user, $faker->password));
 
                 yield $user;

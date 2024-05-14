@@ -11,6 +11,7 @@ class UserVoter extends Voter
     public const LIST = 'USER_LIST';
     public const VIEW = 'USER_VIEW';
     public const CREATE = 'USER_CREATE';
+    public const UPDATE = 'USER_UPDATE';
     public const DELETE = 'USER_DELETE';
 
     protected function supports(string $attribute, $subject): bool
@@ -19,7 +20,7 @@ class UserVoter extends Voter
             return true;
         }
 
-        if (in_array($attribute, [self::VIEW, self::DELETE]) && $subject instanceof \App\Entity\User) {
+        if (in_array($attribute, [self::VIEW, self::UPDATE, self::DELETE]) && $subject instanceof \App\Entity\User) {
             return true;
         }
 
@@ -46,6 +47,8 @@ class UserVoter extends Voter
                 return $this->canView($user, $subject);
             case self::CREATE:
                 return $this->canCreate($user);
+            case self::UPDATE:
+                return $this->canUpdate($user, $subject);
             case self::DELETE:
                 return $this->canDelete($user, $subject);
         }
@@ -69,6 +72,12 @@ class UserVoter extends Voter
     {
         // A user can always create another user
         return true;
+    }
+
+    private function canUpdate(User $user, User $subject): bool
+    {
+        // A user can update another user if they are part of the same company
+        return $user->getCompany() === $subject->getCompany();
     }
 
     private function canDelete(User $user, User $subject): bool

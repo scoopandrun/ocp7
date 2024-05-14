@@ -1,8 +1,5 @@
 nelmio_api_doc:
     documentation:
-        servers:
-            - url: http://bilemo.localhost/api
-
         info:
             title: BileMo API
             description: BileMo API documentation

@@ -3,18 +3,56 @@
 namespace App\Service;
 
 use App\DTO\PaginationDTO;
+use App\DTO\UserDTO;
 use App\Entity\Customer;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
 {
     private UserRepository $userRepository;
+    private UserPasswordHasherInterface $userPasswordHasher;
 
-    public function __construct(UserRepository $userRepository)
-    {
+    public function __construct(
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $userPasswordHasher
+    ) {
         $this->userRepository = $userRepository;
+        $this->userPasswordHasher = $userPasswordHasher;
+    }
+
+    /**
+     * Fills in a user entity with information from a user data transfer object.
+     * 
+     * @param UserDTO   $userDTO The user data transfer object.
+     * @param null|User $user    Optional. The user entity to fill in. If not provided, a new user entity will be created.
+     * 
+     * @return User The user entity.
+     */
+    public function fillInUserEntityFromUserInformationDTO(UserDTO $userDTO, ?User $user = null): User
+    {
+        $user ??= new User();
+
+        $user
+            ->setEmail($userDTO->getEmail())
+            ->setFullname($userDTO->getFullname())
+            ->setCompany($userDTO->getCompany());
+
+        if ($userDTO->getPassword()) {
+            $user->setPassword(
+                $this->userPasswordHasher->hashPassword(
+                    $user,
+                    $userDTO->getPassword()
+                )
+            );
+        }
+
+        $userDTO->eraseCredentials();
+
+        return $user;
     }
 
     /**
@@ -22,9 +60,9 @@ class UserService
      *
      * @param PaginationDTO $paginationDTO The pagination data transfer object.
      * 
-     * @return Paginator The users.
+     * @return PaginationInterface The users.
      */
-    public function findPage(PaginationDTO $paginationDTO, Customer $company): Paginator
+    public function findPage(PaginationDTO $paginationDTO, Customer $company): PaginationInterface
     {
         return $this->userRepository->findPage(
             $paginationDTO->page,
