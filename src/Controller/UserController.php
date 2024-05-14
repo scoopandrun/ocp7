@@ -245,6 +245,78 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/{id}", name=".update", methods={"PUT"})
+     * 
+     * @OA\Response(
+     *   response=200,
+     *   description="Updates a user",
+     *   @Model(type=User::class, groups={"user.show"})
+     * )
+     * 
+     * @OA\Response(
+     *   response=400,
+     *   description="Validation error",
+     *   @OA\JsonContent(
+     *     type="object",
+     *     @OA\Schema(ref="#/components/schemas/ConstraintViolations")
+     *   )
+     * )
+     * 
+     * @OA\Parameter(
+     *   name="id",
+     *   in="path",
+     *   description="The user ID",
+     *   @OA\Schema(type="integer")
+     * )
+     * 
+     * @OA\RequestBody(
+     *   @Model(type=User::class, groups={"user.update"})
+     * )
+     */
+    public function update(
+        User $user,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        SerializerInterface $serializer,
+        UserService $userService
+    ): JsonResponse {
+        try {
+            $this->denyAccessUnlessGranted(UserVoter::UPDATE, $user);
+        } catch (AccessDeniedException $e) {
+            throw new HttpException(403, "You cannot update another company's users");
+        }
+
+        /** @var UserDTO */
+        $userDTO = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
+
+        $userDTO->setId($user->getId());
+
+        $errors = $validator->validate($userDTO);
+
+        if (count($errors) > 0) {
+            $message = $serializer->serialize($errors, 'json');
+            throw new HttpException(400, $message);
+        }
+
+        $user = $userService->fillInUserEntityFromUserInformationDTO($userDTO, $user);
+
+        $entityManager->flush();
+
+        $this->cache->invalidateTags(['users']);
+
+        $context = SerializationContext::create()->setGroups(['user.show']);
+        $serializedUser = $this->jmsSerializer->serialize($user, 'json', $context);
+
+        return new JsonResponse(
+            $serializedUser,
+            200,
+            [],
+            true
+        );
+    }
+
+    /**
      * @Route("/{id}", name=".delete", methods={"DELETE"})
      * 
      * @OA\Response(
