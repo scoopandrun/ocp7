@@ -39,7 +39,7 @@ class BrandController extends AbstractController
     }
 
     /**
-     * @Route("/", name=".index", methods={"GET"})
+     * @Route("", name=".index", methods={"GET"})
      * 
      * @OA\Response(
      *  response=200,

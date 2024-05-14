@@ -47,7 +47,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/", name=".index", methods={"GET"})
+     * @Route("", name=".index", methods={"GET"})
      * 
      * @OA\Response(
      *   response=200,
@@ -172,7 +172,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/", name=".create", methods={"POST"})
+     * @Route("", name=".create", methods={"POST"})
      * 
      * @OA\Response(
      *   response=201,

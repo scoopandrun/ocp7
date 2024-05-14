@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class HomeController extends AbstractController
 {
     /**
-     * @Route("/", name=".index", methods={"GET"})
+     * @Route("", name=".index", methods={"GET"})
      */
     public function index(): JsonResponse
     {
