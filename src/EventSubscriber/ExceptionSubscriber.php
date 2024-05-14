@@ -52,6 +52,8 @@ class ExceptionSubscriber implements EventSubscriberInterface
             ];
 
             if ($this->environment === 'dev') {
+                $responseData['file'] = $exception->getFile();
+                $responseData['line'] = $exception->getLine();
                 $responseData['stackTrace'] = $exception->getTrace();
             }
 
