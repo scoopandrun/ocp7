@@ -36,10 +36,13 @@ class UserService
     {
         $user ??= new User();
 
-        $user
-            ->setEmail($userDTO->getEmail())
-            ->setFullname($userDTO->getFullname())
-            ->setCompany($userDTO->getCompany());
+        if ($userDTO->getEmail()) {
+            $user->setEmail($userDTO->getEmail());
+        }
+
+        if ($userDTO->getFullname()) {
+            $user->setFullname($userDTO->getFullname());
+        }
 
         if ($userDTO->getPassword()) {
             $user->setPassword(
@@ -48,9 +51,11 @@ class UserService
                     $userDTO->getPassword()
                 )
             );
+
+            $userDTO->eraseCredentials();
         }
 
-        $userDTO->eraseCredentials();
+        $user->setCompany($userDTO->getCompany());
 
         return $user;
     }

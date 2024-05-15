@@ -290,7 +290,7 @@ class UserController extends AbstractController
 
         $userDTO->setId($user->getId());
 
-        $errors = $validator->validate($userDTO);
+        $errors = $validator->validate($userDTO, null, ['Default', 'update']);
 
         if (count($errors) > 0) {
             $message = $serializer->serialize($errors, 'json');
