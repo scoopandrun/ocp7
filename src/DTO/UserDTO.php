@@ -17,13 +17,22 @@ class UserDTO
     private ?int $id = null;
 
     /**
-     * @Assert\NotBlank(message="Please enter an email address")
-     * @Assert\Email(message="Please enter a valid email address")
+     * @Assert\NotBlank(
+     *   message="Please enter an email address",
+     *   groups={"create"}
+     * )
+     * @Assert\Email(
+     *   message="Please enter a valid email address",
+     *   groups={"create", "update"}
+     * )
      */
     private ?string $email = null;
 
     /**
-     * @Assert\NotBlank(message="Please enter the full name of the user")
+     * @Assert\NotBlank(
+     *   message="Please enter the full name of the user",
+     *   groups={"create"}
+     * )
      */
     private ?string $fullname = null;
 
