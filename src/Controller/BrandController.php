@@ -11,12 +11,9 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface as JMSSerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -25,7 +22,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  * 
  * @OA\Tag(name="Brands")
  */
-class BrandController extends AbstractController
+class BrandController extends BaseController
 {
     private JMSSerializerInterface $jmsSerializer;
     private TagAwareCacheInterface $cache;
@@ -82,7 +79,7 @@ class BrandController extends AbstractController
      */
     public function index(BrandService $brandService, Request $request): JsonResponse
     {
-        $this->checkAccessGranted();
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
@@ -124,7 +121,7 @@ class BrandController extends AbstractController
      */
     public function show(Brand $brand): JsonResponse
     {
-        $this->checkAccessGranted();
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
 
         $cacheKey = "brand_{$brand->getId()}";
 
@@ -191,7 +188,7 @@ class BrandController extends AbstractController
         BrandService $brandService,
         Request $request
     ): JsonResponse {
-        $this->checkAccessGranted();
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
@@ -220,14 +217,5 @@ class BrandController extends AbstractController
             [],
             true
         );
-    }
-
-    private function checkAccessGranted(): void
-    {
-        try {
-            $this->denyAccessUnlessGranted(DeviceVoter::VIEW);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "Your company cannot use the API.");
-        }
     }
 }
