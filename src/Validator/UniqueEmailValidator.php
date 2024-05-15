@@ -28,6 +28,10 @@ class UniqueEmailValidator extends ConstraintValidator
             throw new UnexpectedValueException($constraint, UniqueEmail::class);
         }
 
+        if (!$userDTO->getEmail()) {
+            return;
+        }
+
         $emailAlreadyTaken = $this->entityManager
             ->getRepository(User::class)
             ->checkEmailAlreadyTaken($userDTO->getEmail(), $userDTO->getId());
