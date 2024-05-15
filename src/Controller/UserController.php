@@ -12,13 +12,11 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface as JMSSerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -30,7 +28,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  * 
  * @OA\Tag(name="Users")
  */
-class UserController extends AbstractController
+class UserController extends BaseController
 {
     private User $user;
     private JMSSerializerInterface $jmsSerializer;
@@ -92,11 +90,7 @@ class UserController extends AbstractController
         UserService $userService,
         Request $request
     ): JsonResponse {
-        try {
-            $this->denyAccessUnlessGranted(UserVoter::LIST);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "You cannot view users");
-        }
+        $this->checkAccessGranted(UserVoter::LIST, null, "You cannot view users");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
@@ -147,11 +141,7 @@ class UserController extends AbstractController
      */
     public function show(User $user): JsonResponse
     {
-        try {
-            $this->denyAccessUnlessGranted(UserVoter::VIEW, $user);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "You cannot view another company's users");
-        }
+        $this->checkAccessGranted(UserVoter::VIEW, $user, "You cannot view another company's users");
 
         $cacheKey = "user_{$user->getId()}";
 
@@ -207,11 +197,7 @@ class UserController extends AbstractController
         UrlGeneratorInterface $urlGenerator,
         UserService $userService
     ): JsonResponse {
-        try {
-            $this->denyAccessUnlessGranted(UserVoter::CREATE);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "You cannot create users");
-        }
+        $this->checkAccessGranted(UserVoter::CREATE, null, "You cannot create users");
 
         /** @var UserDTO */
         $userDTO = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
@@ -279,11 +265,7 @@ class UserController extends AbstractController
         SerializerInterface $serializer,
         UserService $userService
     ): JsonResponse {
-        try {
-            $this->denyAccessUnlessGranted(UserVoter::UPDATE, $user);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "You cannot update another company's users");
-        }
+        $this->checkAccessGranted(UserVoter::UPDATE, $user, "You cannot update another company's users");
 
         /** @var UserDTO */
         $userDTO = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
@@ -333,11 +315,7 @@ class UserController extends AbstractController
         User $user,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        try {
-            $this->denyAccessUnlessGranted(UserVoter::DELETE, $user);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "You cannot delete another company's users");
-        }
+        $this->checkAccessGranted(UserVoter::DELETE, $user, "You cannot delete another company's users");
 
         $entityManager->remove($user, true);
         $entityManager->flush();

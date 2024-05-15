@@ -10,12 +10,9 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface as JMSSerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -24,7 +21,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  * 
  * @OA\Tag(name="Devices")
  */
-class DeviceController extends AbstractController
+class DeviceController extends BaseController
 {
     private JMSSerializerInterface $jmsSerializer;
     private TagAwareCacheInterface $cache;
@@ -83,7 +80,7 @@ class DeviceController extends AbstractController
         DeviceService $deviceService,
         Request $request
     ): JsonResponse {
-        $this->checkAccessGranted();
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
@@ -128,7 +125,7 @@ class DeviceController extends AbstractController
      */
     public function show(Device $device): JsonResponse
     {
-        $this->checkAccessGranted();
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
 
         $cacheKey = "device_{$device->getId()}";
 
@@ -146,14 +143,5 @@ class DeviceController extends AbstractController
             [],
             true
         );
-    }
-
-    private function checkAccessGranted(): void
-    {
-        try {
-            $this->denyAccessUnlessGranted(DeviceVoter::VIEW);
-        } catch (AccessDeniedException $e) {
-            throw new HttpException(403, "Your company cannot use the API.");
-        }
     }
 }

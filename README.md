@@ -21,6 +21,16 @@ Clone and install the project.
 git clone https://github.com/scoopandrun/ocp7
 cd ocp7
 
+# Install the project
+# Don't forget to configure 'DATABASE_URL' in your .env.local file with your local database information
+# With fixtures (default)
+make install
+# Without fixtures
+make install FIXTURES=0
+
+
+# Alternatively, you can decompose the steps as follows
+
 # Install the dependencies
 composer install
 
@@ -34,8 +44,25 @@ php bin/console doctrine:migrations:migrate
 # (Recommended) Load the fixtures to get a starting data set.
 # You can update the initial users information in the User data fixture.
 php bin/console doctrine:fixtures:load
+
+# Generate the JWT key pair
+php bin/console lexik:jwt:generate-keypair
 ```
 
 ## Documentation
 
 Once the project is installed, the API documentation is available at /api/doc (HTML) or /api/doc.json (JSON).
+
+## Default users
+
+By default, the fixtures create 2 permanent users :
+
+- User 1
+  - email: user1@example.com
+  - password: "password"
+- User 2
+  - email: user2@example.com
+  - password: "password"
+
+User 1 belongs to the customer with ID 1, and
+User 2 belongs to the customer with ID 2.
