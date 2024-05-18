@@ -47,7 +47,7 @@ class Customer
     private bool $canUseApi = true;
 
     /**
-     * @ORM\OneToMany(mappedBy="company", targetEntity=User::class, orphanRemoval=true)
+     * @ORM\OneToMany(mappedBy="customer", targetEntity=User::class, orphanRemoval=true)
      */
     private Collection $users;
 
@@ -97,7 +97,7 @@ class Customer
     {
         if (!$this->users->contains($user)) {
             $this->users[] = $user;
-            $user->setCompany($this);
+            $user->setCustomer($this);
         }
 
         return $this;
@@ -107,8 +107,8 @@ class Customer
     {
         if ($this->users->removeElement($user)) {
             // set the owning side to null (unless already changed)
-            if ($user->getCompany() === $this) {
-                $user->setCompany(null);
+            if ($user->getCustomer() === $this) {
+                $user->setCustomer(null);
             }
         }
 

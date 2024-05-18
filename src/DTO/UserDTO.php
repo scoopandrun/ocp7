@@ -49,18 +49,18 @@ class UserDTO
      */
     private ?string $password = null;
 
-    private ?Customer $company = null;
+    private ?Customer $customer = null;
 
     public function __construct(
         ?string $email = null,
         ?string $fullname = null,
         ?string $password = null,
-        ?Customer $company = null
+        ?Customer $customer = null
     ) {
         $this->email = $email;
         $this->fullname = $fullname;
         $this->password = $password;
-        $this->company = $company;
+        $this->customer = $customer;
     }
 
     public function getId(): ?int
@@ -88,9 +88,9 @@ class UserDTO
         return $this->password;
     }
 
-    public function getCompany(): ?Customer
+    public function getCustomer(): ?Customer
     {
-        return $this->company;
+        return $this->customer;
     }
 
     public function eraseCredentials(): void

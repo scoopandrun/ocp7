@@ -95,16 +95,16 @@ class UserController extends BaseController
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
 
-        $company = $this->user->getCompany();
+        $customer = $this->user->getCustomer();
 
-        $cacheKey = "users_{$company->getId()}_{$page}_{$pageSize}";
+        $cacheKey = "users_{$customer->getId()}_{$page}_{$pageSize}";
 
-        $serializedUsers = $this->cache->get($cacheKey, function (ItemInterface $item) use ($userService, $company, $page, $pageSize) {
+        $serializedUsers = $this->cache->get($cacheKey, function (ItemInterface $item) use ($userService, $customer, $page, $pageSize) {
             $item->tag(['users']);
 
             $paginationDTO = new PaginationDTO($page, $pageSize);
 
-            $users = $userService->findPage($paginationDTO, $company);
+            $users = $userService->findPage($paginationDTO, $customer);
 
             $context = SerializationContext::create()
                 ->setGroups([
@@ -141,7 +141,7 @@ class UserController extends BaseController
      */
     public function show(User $user): JsonResponse
     {
-        $this->checkAccessGranted(UserVoter::VIEW, $user, "You cannot view another company's users");
+        $this->checkAccessGranted(UserVoter::VIEW, $user, "You cannot view another customer's users");
 
         $cacheKey = "user_{$user->getId()}";
 
@@ -265,7 +265,7 @@ class UserController extends BaseController
         SerializerInterface $serializer,
         UserService $userService
     ): JsonResponse {
-        $this->checkAccessGranted(UserVoter::UPDATE, $user, "You cannot update another company's users");
+        $this->checkAccessGranted(UserVoter::UPDATE, $user, "You cannot update another customer's users");
 
         /** @var UserDTO */
         $userDTO = $serializer->deserialize($request->getContent(), UserDTO::class, 'json');
@@ -315,7 +315,7 @@ class UserController extends BaseController
         User $user,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        $this->checkAccessGranted(UserVoter::DELETE, $user, "You cannot delete another company's users");
+        $this->checkAccessGranted(UserVoter::DELETE, $user, "You cannot delete another customer's users");
 
         $entityManager->remove($user, true);
         $entityManager->flush();

@@ -63,14 +63,14 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->add($user, true);
     }
 
-    public function findPage(int $page, int $limit, Customer $company): PaginationInterface
+    public function findPage(int $page, int $limit, Customer $customer): PaginationInterface
     {
         $paginator = $this->paginator->paginate(
             $this->createQueryBuilder('u')
-                ->leftJoin('u.company', 'c')
+                ->leftJoin('u.customer', 'c')
                 ->select('u', 'c')
-                ->where('c = :company')
-                ->setParameter('company', $company)
+                ->where('c = :customer')
+                ->setParameter('customer', $customer)
                 ->orderBy('u.id', 'ASC')
                 ->getQuery()
                 ->setHint(Paginator::HINT_ENABLE_DISTINCT, false),
