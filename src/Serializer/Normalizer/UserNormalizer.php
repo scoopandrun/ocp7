@@ -28,10 +28,12 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
 
     public function normalize($user, ?string $format = null, array $context = [])
     {
+        /** @var User $user */
+
         $data = $this->normalizer->normalize($user, $format, $context);
 
         // Here, add, edit, or delete some data:
-        $data["company"] = $user->getCompany()->getName();
+        $data["customer"] = $user->getCustomer()->getName();
 
         return $data;
     }
@@ -45,7 +47,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
             $data['email'] ?? null,
             $data['fullname'] ?? null,
             $data['password'] ?? null,
-            $currentUser->getCompany()
+            $currentUser->getCustomer()
         );
 
         return $userDTO;

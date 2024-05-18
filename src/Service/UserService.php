@@ -55,7 +55,7 @@ class UserService
             $userDTO->eraseCredentials();
         }
 
-        $user->setCompany($userDTO->getCompany());
+        $user->setCustomer($userDTO->getCustomer());
 
         return $user;
     }
@@ -67,12 +67,12 @@ class UserService
      * 
      * @return PaginationInterface The users.
      */
-    public function findPage(PaginationDTO $paginationDTO, Customer $company): PaginationInterface
+    public function findPage(PaginationDTO $paginationDTO, Customer $customer): PaginationInterface
     {
         return $this->userRepository->findPage(
             $paginationDTO->page,
             $paginationDTO->pageSize,
-            $company
+            $customer
         );
     }
 

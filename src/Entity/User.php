@@ -63,14 +63,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=255)
      * @Groups({"user.index", "user.show", "user.create", "user.update"})
      */
-    private $fullname;
+    private ?string $fullname = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"user.show"})
      */
-    private ?Customer $company = null;
+    private ?Customer $customer = null;
 
     /**
      * @ORM\Column(type="json")
@@ -132,14 +132,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->email;
     }
 
-    public function getCompany(): ?Customer
+    public function getCustomer(): ?Customer
     {
-        return $this->company;
+        return $this->customer;
     }
 
-    public function setCompany(?Customer $company): self
+    public function setCustomer(?Customer $customer): self
     {
-        $this->company = $company;
+        $this->customer = $customer;
 
         return $this;
     }

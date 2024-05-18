@@ -79,7 +79,7 @@ class BrandController extends BaseController
      */
     public function index(BrandService $brandService, Request $request): JsonResponse
     {
-        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "The customer you are attached to cannot use the API.");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
@@ -121,7 +121,7 @@ class BrandController extends BaseController
      */
     public function show(Brand $brand): JsonResponse
     {
-        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "The customer you are attached to cannot use the API.");
 
         $cacheKey = "brand_{$brand->getId()}";
 
@@ -188,7 +188,7 @@ class BrandController extends BaseController
         BrandService $brandService,
         Request $request
     ): JsonResponse {
-        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "The customer you are attached to cannot use the API.");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);

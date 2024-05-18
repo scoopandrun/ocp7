@@ -64,8 +64,8 @@ class UserVoter extends Voter
 
     private function canView(User $user, User $subject): bool
     {
-        // A user can view another user if they are part of the same company
-        return $user->getCompany() === $subject->getCompany();
+        // A user can view another user if they belong to the same customer
+        return $user->getCustomer() === $subject->getCustomer();
     }
 
     private function canCreate(User $user): bool
@@ -76,13 +76,13 @@ class UserVoter extends Voter
 
     private function canUpdate(User $user, User $subject): bool
     {
-        // A user can update another user if they are part of the same company
-        return $user->getCompany() === $subject->getCompany();
+        // A user can update another user if they belong to the same customer
+        return $user->getCustomer() === $subject->getCustomer();
     }
 
     private function canDelete(User $user, User $subject): bool
     {
-        // A user can delete another user if they are part of the same company
-        return $user->getCompany() === $subject->getCompany();
+        // A user can delete another user if they belong to the same customer
+        return $user->getCustomer() === $subject->getCustomer();
     }
 }

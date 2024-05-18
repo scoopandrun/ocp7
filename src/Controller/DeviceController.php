@@ -80,7 +80,7 @@ class DeviceController extends BaseController
         DeviceService $deviceService,
         Request $request
     ): JsonResponse {
-        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "The customer you are attached to cannot use the API.");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
@@ -125,7 +125,7 @@ class DeviceController extends BaseController
      */
     public function show(Device $device): JsonResponse
     {
-        $this->checkAccessGranted(DeviceVoter::VIEW, null, "Your company cannot use the API.");
+        $this->checkAccessGranted(DeviceVoter::VIEW, null, "The customer you are attached to cannot use the API.");
 
         $cacheKey = "device_{$device->getId()}";
 

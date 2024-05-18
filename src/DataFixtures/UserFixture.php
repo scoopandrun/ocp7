@@ -14,7 +14,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFixture extends Fixture
 {
-    private array $companyNames = [];
+    private array $customerNames = [];
     private UserPasswordHasherInterface $passwordHasher;
 
     public function __construct(UserPasswordHasherInterface $passwordHasher)
@@ -47,11 +47,11 @@ class UserFixture extends Fixture
         for ($i = 0; $i < 3; $i++) {
             $customer = (new Customer())
                 ->setName($faker->company)
-                ->setCanUseApi($faker->boolean);
+                ->setCanUseApi(true);
 
             $this->addReference("customer-" . $customer->getName(), $customer);
 
-            array_push($this->companyNames, $customer->getName());
+            array_push($this->customerNames, $customer->getName());
 
             yield $customer;
         }
@@ -67,7 +67,7 @@ class UserFixture extends Fixture
         // Persistant users for testing
         $user1 = (new User())
             ->setEmail("user1@example.com")
-            ->setCompany($this->getReference("customer-" . $this->companyNames[0]))
+            ->setCustomer($this->getReference("customer-" . $this->customerNames[0]))
             ->setFullname("John Doe");
         $user1->setPassword($this->passwordHasher->hashPassword($user1, "password"));
 
@@ -75,17 +75,17 @@ class UserFixture extends Fixture
 
         $user2 = (new User())
             ->setEmail("user2@example.com")
-            ->setCompany($this->getReference("customer-" . $this->companyNames[1]))
+            ->setCustomer($this->getReference("customer-" . $this->customerNames[1]))
             ->setFullname("Jane Doe");
         $user2->setPassword($this->passwordHasher->hashPassword($user2, "password"));
 
         yield $user2;
 
-        foreach ($this->companyNames as $companyName) {
+        foreach ($this->customerNames as $customerName) {
             for ($i = 0; $i < 15; $i++) {
                 $user = (new User())
                     ->setEmail($faker->email)
-                    ->setCompany($this->getReference("customer-" . $companyName))
+                    ->setCustomer($this->getReference("customer-" . $customerName))
                     ->setFullname($faker->name);
                 $user->setPassword($this->passwordHasher->hashPassword($user, $faker->password));
 

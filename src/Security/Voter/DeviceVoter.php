@@ -45,7 +45,7 @@ class DeviceVoter extends Voter
 
     private function canView(User $user): bool
     {
-        // A user can view devices if their company has the right to use the API
-        return $user->getCompany()->canUseApi();
+        // A user can view devices if the attached customer has the right to use the API
+        return $user->getCustomer()->canUseApi();
     }
 }
