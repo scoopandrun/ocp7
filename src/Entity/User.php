@@ -63,7 +63,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Column(type="string", length=255)
      * @Groups({"user.index", "user.show", "user.create", "user.update"})
      */
-    private $fullname;
+    private ?string $fullname = null;
 
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="users")
