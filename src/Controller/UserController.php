@@ -115,12 +115,16 @@ class UserController extends BaseController
             return $this->jmsSerializer->serialize($users, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedUsers,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 
     /**
@@ -153,12 +157,16 @@ class UserController extends BaseController
             return $this->jmsSerializer->serialize($user, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedUser,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 
     /**
