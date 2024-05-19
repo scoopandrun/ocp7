@@ -39,16 +39,19 @@ class BrandService
     /**
      * Finds the devices of a brand.
      *
-     * @param Brand $brand The brand.
+     * @param Brand         $brand         The brand.
+     * @param PaginationDTO $paginationDTO The pagination data transfer object.
+     * @param array         $types         The types.
      * 
      * @return PaginationInterface The devices.
      */
-    public function findDevices(Brand $brand, PaginationDTO $paginationDTO): PaginationInterface
+    public function findDevices(Brand $brand, PaginationDTO $paginationDTO, array $types): PaginationInterface
     {
         return $this->deviceRepository->findDevicesFromBand(
             $brand,
             $paginationDTO->page,
-            $paginationDTO->pageSize
+            $paginationDTO->pageSize,
+            $types
         );
     }
 }

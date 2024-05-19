@@ -28,31 +28,49 @@ class DeviceRepository extends ServiceEntityRepository
         $this->paginator = $paginator;
     }
 
-    public function findPage(int $page, int $limit): PaginationInterface
+    public function findPage(int $page, int $limit, array $brands, array $types): PaginationInterface
     {
+        $qb = $this->createQueryBuilder('d')
+            ->orderBy('d.id', 'ASC');
+
+        if (!empty($brands)) {
+            $qb->leftJoin('d.brand', 'b')
+                ->andWhere('b.name IN (:brands)')
+                ->setParameter('brands', $brands);
+        }
+
+        if (!empty($types)) {
+            $qb->andWhere('d.type IN (:types)')
+                ->setParameter('types', $types);
+        }
+
         $paginator = $this->paginator->paginate(
-            $this->createQueryBuilder('d')
-                ->orderBy('d.id', 'ASC')
-                ->getQuery()
-                ->setHint(Paginator::HINT_ENABLE_DISTINCT, false),
+            $qb->getQuery(),
             $page,
-            $limit
+            $limit,
+            ['distinct' => false]
         );
 
         return $paginator;
     }
 
-    public function findDevicesFromBand(Brand $brand, int $page, int $limit): PaginationInterface
+    public function findDevicesFromBand(Brand $brand, int $page, int $limit, array $types): PaginationInterface
     {
+        $qb =  $this->createQueryBuilder('d')
+            ->where('d.brand = :brand')
+            ->setParameter('brand', $brand)
+            ->orderBy('d.id', 'ASC');
+
+        if (!empty($types)) {
+            $qb->andWhere('d.type IN (:types)')
+                ->setParameter('types', $types);
+        }
+
         $paginator = $this->paginator->paginate(
-            $this->createQueryBuilder('d')
-                ->where('d.brand = :brand')
-                ->setParameter('brand', $brand)
-                ->orderBy('d.id', 'ASC')
-                ->getQuery()
-                ->setHint(Paginator::HINT_ENABLE_DISTINCT, false),
+            $qb->getQuery(),
             $page,
-            $limit
+            $limit,
+            ['distinct' => false]
         );
 
         return $paginator;

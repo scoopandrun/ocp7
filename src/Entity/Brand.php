@@ -19,6 +19,21 @@ use JMS\Serializer\Annotation\Groups;
  *   exclusion = @Hateoas\Exclusion(groups = { "brand.index", "brand.show" })
  * )
  * 
+ * @Hateoas\Relation(
+ *   "collection",
+ *   href = @Hateoas\Route("brand.index"),
+ *   exclusion = @Hateoas\Exclusion(groups = { "brand.show" })
+ * )
+ * 
+ * @Hateoas\Relation(
+ *   "devices",
+ *   href = @Hateoas\Route(
+ *     "brand.devices",
+ *     parameters = { "id" = "expr(object.getId())" }
+ *   ),
+ *   exclusion = @Hateoas\Exclusion(groups = { "brand.show" })
+ * )
+ * 
  * @ORM\Entity(repositoryClass=BrandRepository::class)
  */
 class Brand implements \Stringable
