@@ -7,6 +7,7 @@ use App\Entity\Brand;
 use App\Entity\Device;
 use App\Security\Voter\DeviceVoter;
 use App\Service\BrandService;
+use App\Service\RequestService;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface as JMSSerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -190,34 +191,47 @@ class BrandController extends BaseController
      *   description="The number of items per page",
      *   @OA\Schema(type="integer")
      * )
+     * 
+     * @OA\Parameter(
+     *   name="types",
+     *   in="query",
+     *   description="Comma-separated types of devices",
+     *   @OA\Schema(type="string"),
+     *   example="phone,tablet"
+     * )
      */
     public function devices(
         Brand $brand,
         BrandService $brandService,
-        Request $request
+        Request $request,
+        RequestService $requestService
     ): JsonResponse {
         $this->checkAccessGranted(DeviceVoter::VIEW, null, "The customer you are attached to cannot use the API.");
 
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
+        $types = $requestService->getQueryParameterAsArray('types');
 
-        $cacheKey = "brand_{$brand->getId()}_devices_{$page}_{$pageSize}";
+        $cacheKey = "brand_{$brand->getId()}_devices_{$page}_{$pageSize}_" . join("-", $types);
 
-        $serializedDevices = $this->cache->get($cacheKey, function (ItemInterface $item) use ($brandService, $brand, $page, $pageSize) {
-            $item->tag(['brands', 'devices']);
+        $serializedDevices = $this->cache->get(
+            $cacheKey,
+            function (ItemInterface $item) use ($brandService, $brand, $page, $pageSize, $types) {
+                $item->tag(['brands', 'devices']);
 
-            $paginationDTO = new PaginationDTO($page, $pageSize);
+                $paginationDTO = new PaginationDTO($page, $pageSize);
 
-            $devices = $brandService->findDevices($brand, $paginationDTO);
+                $devices = $brandService->findDevices($brand, $paginationDTO, $types);
 
-            $context = SerializationContext::create()
-                ->setGroups([
-                    'Default',
-                    'items' => ['brand.devices']
-                ]);
+                $context = SerializationContext::create()
+                    ->setGroups([
+                        'Default',
+                        'items' => ['brand.devices']
+                    ]);
 
-            return $this->jmsSerializer->serialize($devices, 'json', $context);
-        });
+                return $this->jmsSerializer->serialize($devices, 'json', $context);
+            }
+        );
 
         $response = new JsonResponse(
             $serializedDevices,
