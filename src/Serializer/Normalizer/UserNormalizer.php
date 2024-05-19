@@ -38,7 +38,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
         return $data;
     }
 
-    public function denormalize($data, string $type, ?string $format = null, array $context = [])
+    public function denormalize($data, string $type, ?string $format = null, array $context = []): mixed
     {
         /** @var User */
         $currentUser = $this->security->getUser();
@@ -53,12 +53,12 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
         return $userDTO;
     }
 
-    public function supportsNormalization($data, ?string $format = null, array $context = [])
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof UserDTO;
     }
 
-    public function supportsDenormalization($data, string $type, ?string $format = null)
+    public function supportsDenormalization($data, string $type, ?string $format = null): bool
     {
         return $type === UserDTO::class;
     }
