@@ -102,12 +102,16 @@ class BrandController extends BaseController
             return $this->jmsSerializer->serialize($brands, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedBrands,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 
     /**
@@ -133,12 +137,16 @@ class BrandController extends BaseController
             return $this->jmsSerializer->serialize($brand, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedBrand,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 
     /**
@@ -211,11 +219,15 @@ class BrandController extends BaseController
             return $this->jmsSerializer->serialize($devices, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedDevices,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 }

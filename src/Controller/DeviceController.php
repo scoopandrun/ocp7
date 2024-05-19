@@ -106,12 +106,16 @@ class DeviceController extends BaseController
             return $this->jmsSerializer->serialize($devices, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedDevices,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 
     /**
@@ -137,11 +141,15 @@ class DeviceController extends BaseController
             return $this->jmsSerializer->serialize($device, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedDevice,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 }

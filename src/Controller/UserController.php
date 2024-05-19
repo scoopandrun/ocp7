@@ -100,7 +100,7 @@ class UserController extends BaseController
         $cacheKey = "users_{$customer->getId()}_{$page}_{$pageSize}";
 
         $serializedUsers = $this->cache->get($cacheKey, function (ItemInterface $item) use ($userService, $customer, $page, $pageSize) {
-            $item->tag(['users']);
+            $item->tag(['users_' . $customer->getId()]);
 
             $paginationDTO = new PaginationDTO($page, $pageSize);
 
@@ -115,12 +115,16 @@ class UserController extends BaseController
             return $this->jmsSerializer->serialize($users, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedUsers,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 
     /**
@@ -146,19 +150,23 @@ class UserController extends BaseController
         $cacheKey = "user_{$user->getId()}";
 
         $serializedUser = $this->cache->get($cacheKey, function (ItemInterface $item) use ($user) {
-            $item->tag(['users']);
+            $item->tag(['users_' . $user->getCustomer()->getId()]);
 
             $context = SerializationContext::create()->setGroups(['user.show']);
 
             return $this->jmsSerializer->serialize($user, 'json', $context);
         });
 
-        return new JsonResponse(
+        $response = new JsonResponse(
             $serializedUser,
             200,
             [],
             true
         );
+
+        $response->setEtag(md5($response->getContent()));
+
+        return $response;
     }
 
     /**
@@ -214,7 +222,7 @@ class UserController extends BaseController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $this->cache->invalidateTags(['users']);
+        $this->cache->invalidateTags(['users_' . $user->getCustomer()->getId()]);
 
         $url = $urlGenerator->generate('user.show', ['id' => $user->getId()]);
 
@@ -283,7 +291,7 @@ class UserController extends BaseController
 
         $entityManager->flush();
 
-        $this->cache->invalidateTags(['users']);
+        $this->cache->invalidateTags(['users_' . $user->getCustomer()->getId()]);
 
         $context = SerializationContext::create()->setGroups(['user.show']);
         $serializedUser = $this->jmsSerializer->serialize($user, 'json', $context);
@@ -320,7 +328,7 @@ class UserController extends BaseController
         $entityManager->remove($user, true);
         $entityManager->flush();
 
-        $this->cache->invalidateTags(['users']);
+        $this->cache->invalidateTags(['users_' . $user->getCustomer()->getId()]);
 
         return $this->json(null, 204);
     }

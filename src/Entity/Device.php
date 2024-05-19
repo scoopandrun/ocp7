@@ -20,6 +20,12 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
  *   exclusion = @Hateoas\Exclusion(groups = { "device.index", "device.show" })
  * )
  * 
+ * @Hateoas\Relation(
+ *   "collection",
+ *   href = @Hateoas\Route("device.index"),
+ *   exclusion = @Hateoas\Exclusion(groups = { "device.show" })
+ * )
+ * 
  * @ORM\Entity(repositoryClass=DeviceRepository::class)
  */
 class Device
