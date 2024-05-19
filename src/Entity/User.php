@@ -24,6 +24,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * )
  * 
  * @Hateoas\Relation(
+ *   "collection",
+ *   href = @Hateoas\Route("user.index"),
+ *   exclusion = @Hateoas\Exclusion(groups = { "user.show" })
+ * )
+ * 
+ * @Hateoas\Relation(
  *   "update",
  *   href = @Hateoas\Route(
  *     "user.update",
