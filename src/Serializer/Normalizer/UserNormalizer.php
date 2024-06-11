@@ -38,7 +38,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, DenormalizerInt
         return $data;
     }
 
-    public function denormalize($data, string $type, ?string $format = null, array $context = []): mixed
+    public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
         /** @var User */
         $currentUser = $this->security->getUser();
